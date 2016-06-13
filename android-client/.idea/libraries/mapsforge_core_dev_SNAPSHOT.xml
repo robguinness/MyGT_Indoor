@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="mapsforge-core-dev-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/mapsforge-core-dev-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

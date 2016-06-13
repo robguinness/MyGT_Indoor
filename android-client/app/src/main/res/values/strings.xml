@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MyGT Indoor</string>
+
+    <string name="osiris_app_id">fgi1</string>
+    <string name="osiris_app_host">http://92.222.2.38:8020/osiris</string>
+
+    <string name="indoor_loading_buildings">Loading buildings</string>
+    <string name="indoor_loading_mapfile">Loading background map</string>
+    <string name="default_map_file">osirisDefaultMap.map</string>
+
+</resources>
