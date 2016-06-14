@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+    <!--Theme Colors-->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#E040FB</color>
+
+    <!--Other Colors-->
     <color name="colorBlack">#000000</color>
     <color name="colorBlackAlpha1">#CC000000</color>
     <color name="colorBlackAlpha2">#33000000</color>
