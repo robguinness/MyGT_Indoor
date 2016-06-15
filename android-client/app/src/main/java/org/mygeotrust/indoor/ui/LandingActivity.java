@@ -8,10 +8,12 @@ import com.fhc25.percepcion.osiris.mapviewer.R;
 
 import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
+import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocation;
+import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
 import org.mygeotrust.indoor.tasks.loadMap.LoadMap;
 
-public class LandingActivity extends Activity implements IBindService, IMapLoader {
+public class LandingActivity extends Activity implements IBindService, IMapLoader, ICanGetLocation {
 
     private static final String TAG = LandingActivity.class.toString();
 
@@ -46,8 +48,16 @@ public class LandingActivity extends Activity implements IBindService, IMapLoade
         if(status)
         {
             Log.e(TAG, "Map load status: " + message);
+            //now check if location update is possible or not
+            new CanGetLocation(getApplicationContext(), this);
         }
         else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
+    }
+
+
+    @Override
+    public void onGetLocationStatus(Boolean status, String message) {
+        Log.e(TAG, "Location status: " + status + " Message: " + message);
     }
 }
