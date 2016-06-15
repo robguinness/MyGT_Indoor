@@ -8,6 +8,9 @@ import org.mygeotrust.service.initializer.MyGtServiceBinder;
 import org.mygeotrust.service.manager.Listeners.IMyGtServiceBinder;
 
 /**
+ * This class bind to the MyGtServie stack and returns the status to
+ * the client.
+ *
  * Created by Dr. Mahbubul Syeed on 15.6.2016.
  */
 public class BindToMyGtService extends Activity implements IMyGtServiceBinder {
