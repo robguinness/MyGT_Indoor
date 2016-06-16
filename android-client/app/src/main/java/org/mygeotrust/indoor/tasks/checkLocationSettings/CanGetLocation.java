@@ -211,7 +211,7 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener {
 
         //if the GPS is not turned on then.
         else {
-         /*   GoogleApiClient googleApiClient = null;
+            GoogleApiClient googleApiClient = null;
 
             if (googleApiClient == null) {
                 googleApiClient = new GoogleApiClient.Builder(CanGetLocation.this) //getActivity()
@@ -227,9 +227,9 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener {
                 LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                         .addLocationRequest(locationRequest);
 
-                /*//**************************
+                //**************************
                 builder.setAlwaysShow(true); //this is the key ingredient
-                /*//**************************
+                //**************************
 
                 PendingResult<LocationSettingsResult> result =
                         LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
@@ -263,7 +263,7 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener {
                         }
                     }
                 });
-            }*/
+            }
         }
     }
 
