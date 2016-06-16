@@ -1,13 +1,19 @@
 package org.mygeotrust.indoor.tasks.checkLocationSettings;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.fhc25.percepcion.osiris.mapviewer.R;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -27,34 +33,11 @@ import org.mygeotrust.service.manager.MyGtLocationManager;
 import org.mygeotrust.service.manager.MyGtOptionListener;
 import org.mygeotrust.utils.OptionKeys;
 
-/**
- * This class implements the entire logic to setup the location service permission required
- * to run the application. It checks and prompts user to turn on/allow the location service
- * in device and in the stack. Based on the results it returns whether location service can
- * be used by the application or not.
- * <p/>
- * Created by Dr. Mahbubul Syeed on 14.6.2016.
- */
-public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String TAG = CanGetLocation.class.toString();
-    final int REQUEST_CHECK_SETTINGS = 1000;
+    private static final String TAG = CanGetLocationNew.class.toString();
 
-    @Override
-    public void onConnected(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
+    private static ICanGetLocation observer;
 
     private enum GpsAllowedStatus {
         ALLOWED,
@@ -62,30 +45,33 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
         NOTALLOWED_IN_DEVICE;
     }
 
-    private Context applicationContext;
-
-    private ICanGetLocation observer;
-
-
     //return values for callback
     private boolean canGetLocation;
     private String message;  // holds the explanation of success or failure of the process.
 
 
-    public CanGetLocation(Context applicationContext, ICanGetLocation observer) {
+    private GoogleApiClient _client;
+
+    final int REQUEST_CHECK_SETTINGS = 1000;
+
+
+    public static final void addObserver(ICanGetLocation callbackObserver) {
+        observer = callbackObserver;
+    }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_can_get_location_new);
 
         //add this class as a listener to GPS option
         MyGtOptionListener.addOptionListener(OptionKeys.GPS, this);
 
-        //set the context
-        this.applicationContext = applicationContext;
-
-
-
-        //set the callback listener
-        this.observer = observer;
 
         checkMyGtStackLocationSettings();
+
+
     }
 
 
@@ -109,14 +95,15 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
         else if (!MyGtLocationManager.isLocationAllowed()) {
 
             //show dialogue and launch the service to turn it on with user consent.
-            CustomDialog.showDialog((Activity) observer, "Launch MyGeoTrust", "GPS is not allowed in Current Profile. Press OK to launch the Stack for changing the settings..", CustomDialog.YES_NO, new DialogInterface.OnClickListener() {
+            CustomDialog.showDialog(CanGetLocationNew.this, "Launch MyGeoTrust", "GPS is not allowed in Current Profile. Press OK to launch the Stack for changing the settings..", CustomDialog.YES_NO, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
                     if (which == DialogInterface.BUTTON_POSITIVE) {
                         //launch mygeotrust service
-                        if (!MyGtServiceBinder.launchMyGTApp(applicationContext, Package.getPackage(getPackageName()), CanGetLocation.class)) {
-                            Toast.makeText(CanGetLocation.this, "MyGeoTrust is not installed in your device!", Toast.LENGTH_SHORT).show();
+                        if (!MyGtServiceBinder.launchMyGTApp(getApplicationContext(), Package.getPackage(getPackageName()), CanGetLocation.class)) {
+                            Toast.makeText(CanGetLocationNew.this, "MyGeoTrust is not installed in your device!", Toast.LENGTH_SHORT).show();
+                            //finish(); //close this activity.
                         }
 
                     }
@@ -125,6 +112,7 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
                     else if (which == DialogInterface.BUTTON_NEGATIVE) {
                         prepareReturnData(GpsAllowedStatus.NOTALLOWED_CURRENT_PROFILE);
                         notifyObserver();
+                        finish();
                     }
                 }
             });
@@ -139,6 +127,10 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
      */
     @Override
     public void onGPSOptionChanged(boolean b) {
+
+        //remove listener
+        MyGtOptionListener.removeListener(OptionKeys.GPS, this);
+
         //if user allows GPS in the profile
         if (b) {
             Log.e(TAG, "GPS is allowed in the profile!");
@@ -169,6 +161,7 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
             //so prepare the message and notify client
             prepareReturnData(GpsAllowedStatus.ALLOWED);
             notifyObserver();
+            finish();
         }
 
         //if the GPS is not turned on then.
@@ -178,13 +171,9 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
     }
 
 
-    private void promptUserToTurnOnGPS()
-    {
-
-        GoogleApiClient _client = null;
-
+    private void promptUserToTurnOnGPS() {
         if (_client == null) {
-            _client = new GoogleApiClient.Builder(CanGetLocation.this) //getActivity()
+            _client = new GoogleApiClient.Builder(this) //getActivity()
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).build();
@@ -225,7 +214,7 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
                                 // Show the dialog by calling startResolutionForResult(),
                                 // and check the result in onActivityResult().
                                 status.startResolutionForResult(
-                                        CanGetLocation.this, REQUEST_CHECK_SETTINGS); //getActivity()
+                                        CanGetLocationNew.this, REQUEST_CHECK_SETTINGS); //getActivity()
                             } catch (IntentSender.SendIntentException e) {
                                 // Ignore the error.
                             }
@@ -238,16 +227,52 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
                 }
             });
         }
-
-
-
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
+        Log.e("MainActivity: ", "Is GPS usable: " + states.isGpsUsable());
+        switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        // All required changes were successfully made
+                        Log.e("Main activity:: ", "GPS IS TURNED ON IN THE DEVICE.. YEEEEEE..!!!!");
+                        prepareReturnData(GpsAllowedStatus.ALLOWED);
+                        notifyObserver();
+                        finish();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        // The user was asked to change settings, but chose not to
+                        Log.e("Main activity:: ", "GPS IS NOT ALLOWED ....!!!!");
+                        prepareReturnData(GpsAllowedStatus.NOTALLOWED_IN_DEVICE);
+                        notifyObserver();
+                        finish();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    }
 
 
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.e("TEST: ", "Connected");
+    }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.e("TEST: ", "Connection suspended");
+    }
 
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.e("TEST: ", "Connection failed.");
+    }
 
 
     /**
@@ -257,7 +282,8 @@ public class CanGetLocation extends Activity implements IMyGtGPSOptionListener, 
      */
 
     private void notifyObserver() {
-        observer.onGetLocationStatus(canGetLocation, message);
+        if (observer != null)
+            observer.onGetLocationStatus(canGetLocation, message);
     }
 
     private void prepareReturnData(GpsAllowedStatus status) {
