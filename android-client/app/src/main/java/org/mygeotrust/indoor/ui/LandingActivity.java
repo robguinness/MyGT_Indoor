@@ -7,6 +7,9 @@ import android.view.MenuItem;
 import android.util.Log;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
+import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
+import com.fhc25.percepcion.osiris.mapviewer.manager.IApplicationManagerProvider;
+import com.fhc25.percepcion.osiris.mapviewer.model.states.api.IInternalStateManager;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
 
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
@@ -14,13 +17,21 @@ import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocation;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
+import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorLoader;
+import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoor;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
 import org.mygeotrust.indoor.tasks.loadMap.LoadMap;
 
-public class LandingActivity extends AppCompatActivity implements IBindService, IMapLoader, ICanGetLocation {
+public class LandingActivity extends AppCompatActivity implements IBindService,
+        IMapLoader,
+        IIndoorLoader,
+        ICanGetLocation {
 
     private static final String TAG = LandingActivity.class.toString();
     private MapsforgeMapView mapsforgeMapView;
+
+    private ApplicationManager applicationManager;
+    private IInternalStateManager internalStateManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +41,10 @@ public class LandingActivity extends AppCompatActivity implements IBindService, 
         setContentView(R.layout.activity_landing);
 
         initViews();
+
+        if (savedInstanceState != null) {
+            internalStateManager.loadFromBundle(savedInstanceState);
+        }
 
         new BindToMyGtService(getApplicationContext(), this);
 
@@ -59,10 +74,33 @@ public class LandingActivity extends AppCompatActivity implements IBindService, 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        internalStateManager.persistInternalStateVariable();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        internalStateManager.saveToBundle(savedInstanceState);
+    }
+
     /**
      *
      */
     private void initViews(){
+        //indoor Code
+        IApplicationManagerProvider applicationManagerProvider = (IApplicationManagerProvider) getApplication();
+        applicationManager = applicationManagerProvider.getApplicationManager();
+        internalStateManager = (IInternalStateManager) getApplication();
+
         // setting the map view
         mapsforgeMapView = (MapsforgeMapView) findViewById(R.id.map_view);
     }
@@ -86,6 +124,18 @@ public class LandingActivity extends AppCompatActivity implements IBindService, 
         if(status)
         {
             Log.e(TAG, "Map load status: " + message);
+            // load the indoor layout from server
+            new LoadIndoor(this, applicationManager);
+        }
+        else
+            Log.e(TAG, "Map load Failed! Error Message: " + message);
+    }
+
+    @Override
+    public void onIndoorLayoutLoad(Boolean status, String message) {
+        if(status)
+        {
+            Log.e(TAG, "Map load status: " + message);
             //now check if location update is possible or not
             new CanGetLocation(getApplicationContext(), this);
         }
@@ -98,4 +148,6 @@ public class LandingActivity extends AppCompatActivity implements IBindService, 
     public void onGetLocationStatus(Boolean status, String message) {
         Log.e(TAG, "Location status: " + status + " Message: " + message);
     }
+
+
 }
