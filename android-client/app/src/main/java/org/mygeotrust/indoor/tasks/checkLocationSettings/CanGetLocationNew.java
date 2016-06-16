@@ -33,7 +33,7 @@ import org.mygeotrust.service.manager.MyGtLocationManager;
 import org.mygeotrust.service.manager.MyGtOptionListener;
 import org.mygeotrust.utils.OptionKeys;
 
-public class CanGetLocationNew extends AppCompatActivity implements IMyGtGPSOptionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = CanGetLocationNew.class.toString();
 
@@ -127,6 +127,10 @@ public class CanGetLocationNew extends AppCompatActivity implements IMyGtGPSOpti
      */
     @Override
     public void onGPSOptionChanged(boolean b) {
+
+        //remove listener
+        MyGtOptionListener.removeListener(OptionKeys.GPS, this);
+
         //if user allows GPS in the profile
         if (b) {
             Log.e(TAG, "GPS is allowed in the profile!");
