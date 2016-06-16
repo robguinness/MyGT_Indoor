@@ -1,15 +1,6 @@
 package org.mygeotrust.indoor.tasks.loadMap;
 
-import android.app.Activity;
-import android.content.Context;
-import android.util.Log;
-
-import com.fhc25.percepcion.osiris.mapviewer.R;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
-
-import org.mygeotrust.indoor.tasks.bindService.IBindService;
-import org.mygeotrust.service.initializer.MyGtServiceBinder;
-import org.mygeotrust.service.manager.Listeners.IMyGtServiceBinder;
 
 import java.io.File;
 

@@ -1,26 +1,40 @@
 package org.mygeotrust.indoor.ui;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.util.Log;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
+import com.fhc25.percepcion.osiris.mapviewer.common.log.Lgr;
 import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
 import com.fhc25.percepcion.osiris.mapviewer.manager.IApplicationManagerProvider;
+import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Building;
+import com.fhc25.percepcion.osiris.mapviewer.model.indoor.BuildingGroup;
 import com.fhc25.percepcion.osiris.mapviewer.model.states.api.IInternalStateManager;
+import com.fhc25.percepcion.osiris.mapviewer.model.states.api.IInternalViewState;
+import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
+import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.OsirisOverlayManager;
+import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsirisOverlayManager;
+import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.themes.VisualTheme;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
+import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.level.FloorSelectorView;
 
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
-import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
+import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocation;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
 import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorLoader;
 import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoor;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
 import org.mygeotrust.indoor.tasks.loadMap.LoadMap;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class LandingActivity extends AppCompatActivity implements IBindService,
         IMapLoader,
@@ -33,6 +47,10 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
     private ApplicationManager applicationManager;
     private IInternalStateManager internalStateManager;
 
+    private FloorSelectorView floorSelectorView;
+    private MapsforgeOsirisOverlayManager mapsforgeOsirisOverlayManager;
+    private FloorSelectorViewController floorSelectorViewController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +61,7 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
         initViews();
 
         if (savedInstanceState != null) {
+            initFromViewState(internalStateManager.getViewState());
             internalStateManager.loadFromBundle(savedInstanceState);
         }
 
@@ -75,8 +94,19 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(savedInstanceState, outPersistentState);
+
+        mapsforgeMapView.saveState(savedInstanceState);
+        mapsforgeOsirisOverlayManager.saveIntoBundle(savedInstanceState);
+        floorSelectorView.saveStateToBundle(savedInstanceState);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+
+        mapsforgeOsirisOverlayManager.deepUpdate();
     }
 
     @Override
@@ -84,12 +114,15 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
         super.onPause();
 
         internalStateManager.persistInternalStateVariable();
+        mapsforgeMapView.onPause();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        internalStateManager.saveToBundle(savedInstanceState);
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mapsforgeMapView.destroy();
+        mapsforgeOsirisOverlayManager.destroy();
     }
 
     /**
@@ -103,6 +136,15 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
 
         // setting the map view
         mapsforgeMapView = (MapsforgeMapView) findViewById(R.id.map_view);
+        floorSelectorView = (FloorSelectorView) findViewById(R.id.floor_radio_group);
+
+        mapsforgeOsirisOverlayManager = new MapsforgeOsirisOverlayManager(getResources(), mapsforgeMapView.getMapView(),
+                new VisualTheme(this));
+
+        floorSelectorViewController = new FloorSelectorViewController(floorSelectorView, mapsforgeOsirisOverlayManager);
+
+        floorSelectorView.addObserver(floorSelectorViewController);
+        mapsforgeMapView.addObserver(floorSelectorViewController);
     }
 
 
@@ -125,7 +167,7 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
         {
             Log.e(TAG, "Map load status: " + message);
             // load the indoor layout from server
-            new LoadIndoor(this, applicationManager);
+            new LoadIndoor(this, applicationManager, internalStateManager);
         }
         else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
@@ -143,6 +185,69 @@ public class LandingActivity extends AppCompatActivity implements IBindService,
             Log.e(TAG, "Map load Failed! Error Message: " + message);
     }
 
+    @Override
+    public MapsforgeMapView getMapsforgeMapView() {
+        return mapsforgeMapView;
+    }
+
+    @Override
+    public FloorSelectorView getFloorSelectorView() {
+        return floorSelectorView;
+    }
+
+    @Override
+    public OsirisOverlayManager getOsirisOverlayManager() {
+        return mapsforgeOsirisOverlayManager;
+    }
+
+    @Override
+    public FloorSelectorViewController getFloorSelectorViewController() {
+        return floorSelectorViewController;
+    }
+
+    private void initFromBuildings(BuildingGroup buildingGroup) {
+
+        if (buildingGroup.getBuildings().size() == 1) {
+            Building building = buildingGroup.getAllBuildings().iterator().next();
+
+            final List<String> levels = new ArrayList<String>(building.getLevels());
+            Collections.sort(levels, Collections.reverseOrder());
+
+            floorSelectorView.post(new Runnable() {
+                @Override
+                public void run() {
+                    floorSelectorView.load(levels);
+                }
+            });
+
+        } else if (buildingGroup.getBuildings().size() == 2 && buildingGroup.getBuildings().containsKey("none")) {
+
+            for (Building building : buildingGroup.getAllBuildings()) {
+
+                if (!building.getName().equals("none")) {
+                    final List<String> levels = new ArrayList<String>(building.getLevels());
+                    Collections.sort(levels, Collections.reverseOrder());
+
+                    floorSelectorView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            floorSelectorView.load(levels);
+                        }
+                    });
+                }
+            }
+        } else {
+            Lgr.e(TAG, "Floor selector is not prepared for managing more than one building");
+        }
+    }
+
+    @Override
+    public void initFromViewState(IInternalViewState internalViewState) {
+        mapsforgeOsirisOverlayManager.buildFromViewState(internalViewState);
+
+        BuildingGroup buildingGroup = internalViewState.getBuildingGroup();
+        initFromBuildings(buildingGroup);
+    }
 
     @Override
     public void onGetLocationStatus(Boolean status, String message) {
