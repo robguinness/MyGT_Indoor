@@ -1,15 +1,6 @@
 package org.mygeotrust.indoor.tasks.loadMap;
 
-import android.app.Activity;
-import android.content.Context;
-import android.util.Log;
-
-import com.fhc25.percepcion.osiris.mapviewer.R;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
-
-import org.mygeotrust.indoor.tasks.bindService.IBindService;
-import org.mygeotrust.service.initializer.MyGtServiceBinder;
-import org.mygeotrust.service.manager.Listeners.IMyGtServiceBinder;
 
 import java.io.File;
 
@@ -17,10 +8,10 @@ import java.io.File;
  * This class is responsible for loading the WorldMap (open street map) and
  * indoor location information (from Oseris server) to be plotted on the
  * world map.
- *
+ * <p/>
  * Created by Dr. Mahbubul Syeed on 15.6.2016.
  */
-public class LoadMap{
+public class LoadMap {
 
     private static final String TAG = LoadMap.class.toString();
 
@@ -48,17 +39,16 @@ public class LoadMap{
         notifyObserver();
     }
 
-    private final void loadOpenStreetMap()
-    {
+    private final void loadOpenStreetMap() {
         // setting the map view
         mapsforgeMapView.setMapFile(new File(""));
-        mapsforgeMapView.setMapPosition(60.161397, 24.738347);
+        mapsforgeMapView.setMapPosition(60.161156, 24.545785);
         mapsforgeMapView.setZoomLevel((byte) 16);
     }
 
 
-   public void notifyObserver()
-   {
-        observer.onMapLoaded(mapLoadStatus, message);
-   }
+    public void notifyObserver() {
+        if (null != observer)
+            observer.onMapLoaded(mapLoadStatus, message);
+    }
 }

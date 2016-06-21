@@ -10,7 +10,7 @@ import org.mygeotrust.service.manager.Listeners.IMyGtServiceBinder;
 /**
  * This class bind to the MyGtServie stack and returns the status to
  * the client.
- *
+ * <p/>
  * Created by Dr. Mahbubul Syeed on 15.6.2016.
  */
 public class BindToMyGtService extends Activity implements IMyGtServiceBinder {
@@ -28,8 +28,7 @@ public class BindToMyGtService extends Activity implements IMyGtServiceBinder {
         bindToMyGtService();
     }
 
-    private final void bindToMyGtService()
-    {
+    private final void bindToMyGtService() {
         if (MyGtServiceBinder.isBound()) {
             Log.e(TAG, "YEE!! Already bounded.. I can do my work... :)");
         }
@@ -48,12 +47,14 @@ public class BindToMyGtService extends Activity implements IMyGtServiceBinder {
 
     /**
      * Returns status of service binding.
+     *
      * @param b
      */
     @Override
     public void onServiceBind(boolean b) {
         Log.e(TAG, "Bind status: " + b);
         //notify the observer
-        observer.onServiceBind(b);
+        if (null != observer)
+            observer.onServiceBind(b);
     }
 }
