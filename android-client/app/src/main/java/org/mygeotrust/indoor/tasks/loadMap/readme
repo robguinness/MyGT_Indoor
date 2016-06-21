@@ -1,0 +1,1 @@
+sole purpose of this package is to implement server communication to fetch data, parse it and store it (as per requirement) in the local database.
