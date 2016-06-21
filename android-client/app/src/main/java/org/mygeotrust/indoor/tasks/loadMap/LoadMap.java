@@ -8,10 +8,10 @@ import java.io.File;
  * This class is responsible for loading the WorldMap (open street map) and
  * indoor location information (from Oseris server) to be plotted on the
  * world map.
- *
+ * <p/>
  * Created by Dr. Mahbubul Syeed on 15.6.2016.
  */
-public class LoadMap{
+public class LoadMap {
 
     private static final String TAG = LoadMap.class.toString();
 
@@ -39,8 +39,7 @@ public class LoadMap{
         notifyObserver();
     }
 
-    private final void loadOpenStreetMap()
-    {
+    private final void loadOpenStreetMap() {
         // setting the map view
         mapsforgeMapView.setMapFile(new File(""));
         mapsforgeMapView.setMapPosition(60.161156, 24.545785);
@@ -48,8 +47,8 @@ public class LoadMap{
     }
 
 
-   public void notifyObserver()
-   {
-        observer.onMapLoaded(mapLoadStatus, message);
-   }
+    public void notifyObserver() {
+        if (null != observer)
+            observer.onMapLoaded(mapLoadStatus, message);
+    }
 }
