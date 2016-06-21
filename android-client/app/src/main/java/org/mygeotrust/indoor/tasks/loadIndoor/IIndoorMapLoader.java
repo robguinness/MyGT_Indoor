@@ -13,4 +13,5 @@ import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.level.IFloorSelecto
 public interface IIndoorMapLoader {
 
     void onIndoorMapLoaded(Boolean status, String message);
+
 }

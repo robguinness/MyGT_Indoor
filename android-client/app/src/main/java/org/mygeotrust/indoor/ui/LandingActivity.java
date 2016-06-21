@@ -9,15 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
-import com.fhc25.percepcion.osiris.mapviewer.common.log.Lgr;
-import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
-import com.fhc25.percepcion.osiris.mapviewer.manager.IApplicationManagerProvider;
-import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Building;
-import com.fhc25.percepcion.osiris.mapviewer.model.indoor.BuildingGroup;
-import com.fhc25.percepcion.osiris.mapviewer.model.states.api.IInternalStateManager;
-import com.fhc25.percepcion.osiris.mapviewer.model.states.api.IInternalViewState;
 import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
-import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.OsirisOverlayManager;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsirisOverlayManager;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.themes.VisualTheme;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
@@ -26,7 +18,6 @@ import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.level.FloorSelector
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
 import org.mygeotrust.indoor.tasks.bindService.IBindService;
-import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocation;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocationNew;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
 import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorMapLoader;
@@ -34,25 +25,16 @@ import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoorMap;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
 import org.mygeotrust.indoor.tasks.loadMap.LoadMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-public class LandingActivity extends AppCompatActivity implements ILandingActivity, IBindService,
-        IMapLoader,
-        IIndoorMapLoader,
-        ICanGetLocation {
+public class LandingActivity extends AppCompatActivity implements ILandingActivity, IBindService, IMapLoader, ICanGetLocation, IIndoorMapLoader {
+
 
     private static final String TAG = LandingActivity.class.toString();
     private MapsforgeMapView mapsforgeMapView;
-
-    //TODO: I commented it.
-    /*private ApplicationManager applicationManager;
-    private IInternalStateManager internalStateManager;*/
-
     private FloorSelectorView floorSelectorView;
     private MapsforgeOsirisOverlayManager mapsforgeOsirisOverlayManager;
     private FloorSelectorViewController floorSelectorViewController;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +45,20 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
         initViews();
 
-        if (savedInstanceState != null) {
+
+       /*
+        * This code is related to lifecycle event of the activity while onCreate is called, e.g., screen orientation change. to load the last known
+        * state of the application.
+        * Will be used in future.
+       if (savedInstanceState != null) {
             LoadIndoorMap.loadFromSaveState(savedInstanceState);
-        }
+        }*/
+
 
         new BindToMyGtService(getApplicationContext(), this);
 
     }
+
 
 
     /**
@@ -109,34 +98,31 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     public void onMapLoaded(Boolean status, String message) {
         if (status) {
             Log.e(TAG, "Map load status: " + message);
-            // load the indoor layout from server
-            LoadIndoorMap.loadMap(this, this); // TODO: parameter need to be refactored.
+            // Check location update settings
+            CanGetLocationNew.addObserver(this);
+            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+            startActivity(intent);
         } else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
     }
+
+
+
+    public void onGetLocationStatus(Boolean status, String message) {
+        Log.e(TAG, "Location status: " + status + " Message: " + message);
+        // load the indoor layout from server
+        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
+    }
+
 
     @Override
     public void onIndoorMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "Map load status: " + message);
-            //now check if location update is possible or not
-            CanGetLocationNew.addObserver(this);
-            Intent intent =new Intent(LandingActivity.this, CanGetLocationNew.class);
-            LandingActivity.this.startActivity(intent);
+            Log.e(TAG, "indoor Map load status: " + message);
+
         } else
-            Log.e(TAG, "Map load Failed! Error Message: " + message);
+            Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
     }
-
-
-
-    @Override
-    public void onGetLocationStatus(Boolean status, String message) {
-        Log.e(TAG, "Location status: " + status + " Message: " + message);
-    }
-
-
-
-
 
 
     /**
@@ -157,16 +143,13 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
 
 
-
-
-
-
-
     /**
      * ----------------------------------------------
      * Activity LIFECYCLE METHODS
      * ----------------------------------------------
      */
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -182,7 +165,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (id) {
+        switch (id){
             case R.id.settings:
                 break;
             case R.id.about:
@@ -192,6 +175,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         return super.onOptionsItemSelected(item);
     }
 
+
+    /*
+     * This block is to save the state of the application when it get destroyed. so that it can be loaded while reloading, e.g., orientation change.
+     * Currently not in use.. but should be used in future.
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState, PersistableBundle outPersistentState) {
         Log.e(TAG, "onSaveInstanceState called!!");
@@ -200,25 +187,27 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         mapsforgeMapView.saveState(savedInstanceState);
         mapsforgeOsirisOverlayManager.saveIntoBundle(savedInstanceState);
         floorSelectorView.saveStateToBundle(savedInstanceState);
-    }
+    }*/
 
+   /*
+    * Code block in the on resume and on pause causing indoor map load failure.
+     * We currently dont need this.
     @Override
+
     public void onResume() {
         super.onResume();
 
         mapsforgeOsirisOverlayManager.deepUpdate();
     }
 
-
-
+   /* @Override
     public void onPause() {
         super.onPause();
 
+        //LoadIndoorMap.persistInternalState();
 
-        LoadIndoorMap.persistInternalState();
-        //LoadIndoorMap.getInternalStateManager().persistInternalStateVariable();
         mapsforgeMapView.onPause();
-    }
+    }*/
 
     @Override
     protected void onDestroy() {
@@ -227,6 +216,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         mapsforgeMapView.destroy();
         mapsforgeOsirisOverlayManager.destroy();
     }
+
 
 
 }

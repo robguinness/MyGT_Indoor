@@ -45,11 +45,13 @@ public class LoadIndoorMap {
     private static MetaData metaData;
 
 
-    public static final void loadMap(IIndoorMapLoader clientObserver, Activity referenceActivity) {
+
+    public static final void loadMap(IIndoorMapLoader clientObserver) {
         //register the client to send update
         observer = clientObserver;
         //store the activity context
-        activity = referenceActivity;
+        activity = (Activity)clientObserver;
+
 
         applicationManagerProvider = (IApplicationManagerProvider) activity.getApplication();
         applicationManager = applicationManagerProvider.getApplicationManager();
@@ -58,6 +60,7 @@ public class LoadIndoorMap {
 
         //try to load map..
         loadIndoorLayout();
+
 
         //TODO: set load status and message properly.
         mapLoadStatus = true;
@@ -153,6 +156,7 @@ public class LoadIndoorMap {
     private static final void notifyObserver() {
         if (null != observer)
             observer.onIndoorMapLoaded(mapLoadStatus, message);
+
     }
 
 }

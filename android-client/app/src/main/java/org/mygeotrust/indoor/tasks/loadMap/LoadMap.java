@@ -42,7 +42,9 @@ public class LoadMap {
     private final void loadOpenStreetMap() {
         // setting the map view
         mapsforgeMapView.setMapFile(new File(""));
-        mapsforgeMapView.setMapPosition(60.161156, 24.545785);
+
+        mapsforgeMapView.setMapPosition(60.160959, 24.546153);
+
         mapsforgeMapView.setZoomLevel((byte) 16);
     }
 
