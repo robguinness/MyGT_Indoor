@@ -1,7 +1,5 @@
 package org.mygeotrust.indoor.tasks.loadMap;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
 
@@ -9,7 +7,6 @@ import org.mygeotrust.indoor.tasks.loadMap.loadAndMarkIndoor.GetAndPlotIndoorDat
 import org.mygeotrust.indoor.tasks.loadMap.loadAndMarkIndoor.IMarkIndoor;
 import org.mygeotrust.indoor.tasks.loadMap.loadOpenStreetMap.LoadOpenStreetMap;
 
-import java.io.File;
 
 /**
  * This class is responsible for loading the WorldMap (open street map) and
@@ -41,22 +38,18 @@ public class LoadMap implements IMarkIndoor {
         // "highlight" or "mark" bulidings which are indoor mapped
         GetAndPlotIndoorData.getQueryResult(this, observer, mapsforgeMapView);
 
-        //notify the observer
-        //notifyObserver();
     }
 
-    /*@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private final void loadOpenStreetMap() {
 
-    }*/
 
     @Override
     public void onIndoorMarkerPlotted(Boolean status, String message) {
         mapLoadStatus = status;
         this.message = message;
-
         notifyObserver();
     }
+
+
 
     public void notifyObserver() {
         if (null != observer)
