@@ -207,7 +207,7 @@ public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListene
 
                             break;
                         case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            Log.e("Main activity:: ", "RESOLUTION_REQUIRED..!!!!");
+                            Log.e(TAG, "RESOLUTION_REQUIRED..!!!!");
                             // Location settings are not satisfied. But could be fixed by showing the user
                             // a dialog.
                             try {
@@ -233,20 +233,20 @@ public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
-        Log.e("MainActivity: ", "Is GPS usable: " + states.isGpsUsable());
+        Log.e(TAG, "Is GPS usable: " + states.isGpsUsable());
         switch (requestCode) {
             case REQUEST_CHECK_SETTINGS:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         // All required changes were successfully made
-                        Log.e("Main activity:: ", "GPS IS TURNED ON IN THE DEVICE.. YEEEEEE..!!!!");
+                        Log.e(TAG, "GPS IS TURNED ON IN THE DEVICE.. YEEEEEE..!!!!");
                         prepareReturnData(GpsAllowedStatus.ALLOWED);
                         notifyObserver();
                         finish();
                         break;
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
-                        Log.e("Main activity:: ", "GPS IS NOT ALLOWED ....!!!!");
+                        Log.e(TAG, "GPS IS NOT ALLOWED ....!!!!");
                         prepareReturnData(GpsAllowedStatus.NOTALLOWED_IN_DEVICE);
                         notifyObserver();
                         finish();
@@ -271,7 +271,7 @@ public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListene
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.e("TEST: ", "Connection failed.");
+        Log.e(TAG, "Connection failed.");
     }
 
 
