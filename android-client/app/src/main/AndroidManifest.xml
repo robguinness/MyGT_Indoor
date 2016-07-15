@@ -2,6 +2,7 @@
 <manifest package="com.fhc25.percepcion.osiris.mapviewer"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -47,6 +48,22 @@
         <activity android:name="org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocationNew"
                   android:theme="@style/CanGetLocationTheme">
         </activity>
+
+        <service
+            android:name="org.mygeotrust.indoor.tasks.detectProximity.DetermineIndoorOutdoorService"
+            android:exported="false"/>
+        <service
+            android:name="org.mygeotrust.indoor.tasks.detectProximity.HighRateGpsListenerService"
+            android:exported="false"/>
+        <service
+            android:name="org.mygeotrust.indoor.tasks.detectProximity.HighRateGpsStatusListenerService"
+            android:exported="false"/>
+        <service
+            android:name="org.mygeotrust.indoor.tasks.detectProximity.LowRateGpsListenerService"
+            android:exported="false"/>
+        <service
+            android:name="org.mygeotrust.indoor.tasks.detectProximity.LowRateGpsStatusListenerService"
+            android:exported="false"/>
     </application>
 
 </manifest>

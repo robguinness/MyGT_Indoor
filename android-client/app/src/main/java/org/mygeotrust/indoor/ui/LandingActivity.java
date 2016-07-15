@@ -1,12 +1,16 @@
 package org.mygeotrust.indoor.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
 import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
@@ -20,6 +24,7 @@ import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
 import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocationNew;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
+import org.mygeotrust.indoor.tasks.detectProximity.DetermineIndoorOutdoorService;
 import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorMapLoader;
 import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoorMap;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
@@ -30,10 +35,41 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
 
     private static final String TAG = LandingActivity.class.toString();
+
+    /**
+     * --------------------------------------
+     * For Oseries indoor mapping
+     * --------------------------------------
+     */
     private MapsforgeMapView mapsforgeMapView;
     private FloorSelectorView floorSelectorView;
     private MapsforgeOsirisOverlayManager mapsforgeOsirisOverlayManager;
     private FloorSelectorViewController floorSelectorViewController;
+
+
+    /**
+     * -------------------------------
+     * For proximity detection
+     * -------------------------------
+     */
+    private static final boolean DEBUG_ON = false;
+    private static final String CURRENT_STATUS_VALUE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_VALUE";
+    private static final String CURRENT_STATUS_PROB = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_PROB";
+    private static final String WIFI_INFO_UPDATE = "com.contextawareness.determineindooroutdoor.WIFI_INFO_UPDATE";
+    private static final String WIFI_POWER_LOW_EVENT = "com.contextawareness.determineindooroutdoor.WIFI_POWER_LOW_EVENT";
+    private static final String TOTAL_POWER_VALUE = "com.contextawareness.determineindooroutdoor.TOTAL_POWER_VALUE";
+    private static final String NUMBER_ACCESS_POINTS = "com.contextawareness.determineindooroutdoor.NUMBER_ACCESS_POINTS";
+    private static final String CURRENT_STATUS_UPDATE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_UPDATE";
+    private static final String GPS_VALUE = "com.contextawareness.determineindooroutdoor.GPS_VALUE";
+    private static final String GPS_UPDATE = "com.contextawareness.determineindooroutdoor.GPS_UPDATE";
+    private BroadcastReceiver currentStatusReceiver;
+    private BroadcastReceiver wifiInfoReceiver;
+
+    //Temporary views to test indoor / outdoor proximity detection
+    private TextView tvCurrentStatus;
+    private TextView tvCurrentStatusProb;
+    private TextView tvTotalPowerValue;
+    private TextView tvNumberAPsValue;
 
 
     @Override
@@ -60,7 +96,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     }
 
 
-
     /**
      * ----------------------------------------
      * Application Logic flow callback methods
@@ -80,6 +115,13 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
         floorSelectorView.addObserver(floorSelectorViewController);
         mapsforgeMapView.addObserver(floorSelectorViewController);
+
+        //Temporary views to test indoor / outdoor proximity detection
+        tvCurrentStatus = (TextView) findViewById(R.id.tvCurrentStatusValue);
+        tvCurrentStatusProb = (TextView) findViewById(R.id.tvCurrentStatusProb);
+        tvTotalPowerValue = (TextView) findViewById(R.id.tvTotalPowerValue);
+        tvNumberAPsValue = (TextView) findViewById(R.id.tvNumberAPsValue);
+
     }
 
 
@@ -108,7 +150,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     }
 
 
-
     public void onGetLocationStatus(Boolean status, String message) {
         Log.e(TAG, "Location status: " + status + " Message: " + message);
         // load the indoor layout from server
@@ -120,9 +161,72 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     public void onIndoorMapLoaded(Boolean status, String message) {
         if (status) {
             Log.e(TAG, "indoor Map load status: " + message);
+            startProximityDetector();
 
         } else
             Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
+    }
+
+
+    /**
+     * This method starts the proximity detection service(s) upon successful completion
+     * of the app lifecycle events.
+     */
+    private void startProximityDetector()
+    {
+        Log.e(TAG, "Proximity detector started!!");
+
+        currentStatusReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
+            {
+                tvCurrentStatus.setText(intent.getStringExtra(CURRENT_STATUS_VALUE));
+                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB,0)));
+            }
+        };
+
+        wifiInfoReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
+            {
+                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE,0);
+                if (totalPower != 0){
+                    tvTotalPowerValue.setText(String.valueOf(totalPower));
+                }
+                else {
+                    tvTotalPowerValue.setText("low");
+                }
+
+                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS,0)) + ")");
+
+            }
+        };
+
+//        gpsReceiver = new BroadcastReceiver() {
+//
+//            @Override
+//              public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
+//              {
+//            	if (DEBUG_ON) Log.d(TAG,"Location received in Activty.");
+//          	  	Location location = intent.getExtras().getParcelable(GPS_VALUE);
+//          	  	if (DEBUG_ON) Log.d(TAG,"Location:" + location.toString());
+//              }
+//        };
+
+        IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
+        registerReceiver(currentStatusReceiver,currentStatusFilter);
+
+        IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
+        registerReceiver(wifiInfoReceiver,wifiInfoFilter);
+
+
+        //IntentFilter gpsFilter = new IntentFilter(GPS_UPDATE);
+        //registerReceiver(gpsReceiver,gpsFilter);
+
+        startService(new Intent(this, DetermineIndoorOutdoorService.class));
+        //startService(new Intent(this, GpsListenerService.class));
     }
 
 
@@ -142,14 +246,11 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     }
 
 
-
-
     /**
      * ----------------------------------------------
      * Activity LIFECYCLE METHODS
      * ----------------------------------------------
      */
-
 
 
     @Override
@@ -166,7 +267,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (id){
+        switch (id) {
             case R.id.settings:
                 break;
             case R.id.about:
@@ -214,10 +315,15 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     protected void onDestroy() {
         super.onDestroy();
 
+        //remove the map view and layer manager
         mapsforgeMapView.destroy();
         mapsforgeOsirisOverlayManager.destroy();
-    }
 
+        //stop proximity detection services
+        unregisterReceiver(currentStatusReceiver);
+        unregisterReceiver(wifiInfoReceiver);
+        stopService(new Intent(this, DetermineIndoorOutdoorService.class));
+    }
 
 
 }
