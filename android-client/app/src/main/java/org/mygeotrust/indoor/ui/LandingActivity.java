@@ -128,9 +128,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onServiceBind(Boolean status) {
         if (status) {
-            Log.e(TAG, "Bind Status: successful!");
+            Log.d(TAG, "Bind Status: successful!");
             //now load the map
             new LoadMap(this, mapsforgeMapView);
+
         } else
             Log.e(TAG, "Bind Failed! Please check that MyGeoTrust is properly installed in your device and restart again. Thanks");
     }
@@ -139,7 +140,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "Map load status: " + message);
+            Log.e(TAG, "Map load status: " + status+ ": " + message);
             // Check location update settings
             CanGetLocationNew.addObserver(this);
             Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
@@ -159,7 +160,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onIndoorMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "indoor Map load status: " + message);
+            Log.e(TAG, "indoor Map load status: " + status + ":  " + message);
             startProximityDetector();
 
         } else
@@ -203,16 +204,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             }
         };
 
-//        gpsReceiver = new BroadcastReceiver() {
-//
-//            @Override
-//              public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
-//              {
-//            	if (DEBUG_ON) Log.d(TAG,"Location received in Activty.");
-//          	  	Location location = intent.getExtras().getParcelable(GPS_VALUE);
-//          	  	if (DEBUG_ON) Log.d(TAG,"Location:" + location.toString());
-//              }
-//        };
 
         IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
         registerReceiver(currentStatusReceiver,currentStatusFilter);
@@ -220,12 +211,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
         registerReceiver(wifiInfoReceiver,wifiInfoFilter);
 
-
-        //IntentFilter gpsFilter = new IntentFilter(GPS_UPDATE);
-        //registerReceiver(gpsReceiver,gpsFilter);
-
         startService(new Intent(this, DetermineIndoorOutdoorService.class));
-        //startService(new Intent(this, GpsListenerService.class));
     }
 
 
