@@ -30,7 +30,7 @@ public class BindToMyGtService extends Activity implements IMyGtServiceBinder {
 
     private final void bindToMyGtService() {
         if (MyGtServiceBinder.isBound()) {
-            Log.e(TAG, "YEE!! Already bounded.. I can do my work... :)");
+            Log.d(TAG, "YEE!! Already bounded.. I can do my work... :)");
         }
         //if not then bind with the service pls..
         else {
@@ -52,7 +52,7 @@ public class BindToMyGtService extends Activity implements IMyGtServiceBinder {
      */
     @Override
     public void onServiceBind(boolean b) {
-        Log.e(TAG, "Bind status: " + b);
+        Log.i(TAG, "Bind status: " + b);
         //notify the observer
         if (null != observer)
             observer.onServiceBind(b);

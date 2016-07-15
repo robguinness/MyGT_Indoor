@@ -86,9 +86,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onServiceBind(Boolean status) {
         if (status) {
-            Log.e(TAG, "Bind Status: successful!");
+            Log.d(TAG, "Bind Status: successful!");
             //now load the map
             new LoadMap(this, mapsforgeMapView);
+
         } else
             Log.e(TAG, "Bind Failed! Please check that MyGeoTrust is properly installed in your device and restart again. Thanks");
     }
@@ -97,11 +98,11 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "Map load status: " + message);
+            Log.d(TAG, "Map load status: " + message);
             // Check location update settings
-            CanGetLocationNew.addObserver(this);
-            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
-            startActivity(intent);
+//            CanGetLocationNew.addObserver(this);
+//            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+//            startActivity(intent);
         } else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
     }
