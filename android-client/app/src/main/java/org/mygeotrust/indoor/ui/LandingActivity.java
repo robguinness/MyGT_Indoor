@@ -142,9 +142,9 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         if (status) {
             Log.d(TAG, "Map load status: " + message);
             // Check location update settings
-//            CanGetLocationNew.addObserver(this);
-//            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
-//            startActivity(intent);
+            CanGetLocationNew.addObserver(this);
+            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+            startActivity(intent);
         } else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
     }
