@@ -76,6 +76,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
 
     private Button btnLoadIndoor;
+    private Button btnLoadIndoor2;
 
 
     @Override
@@ -132,7 +133,22 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         btnLoadIndoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
                 String appId = getResources().getString(R.string.osiris_app_id);
+
+                OsirisApplication app = (OsirisApplication) getApplicationContext();
+                app.indoorLayoutManager(appId); //initialize with given map id
+
+                LoadIndoorMap.loadMap(LandingActivity.this); // loading corresponding indoor layout
+            }
+        });
+
+        btnLoadIndoor2 = (Button) findViewById(R.id.load_indoor_btn_2);
+        btnLoadIndoor2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+                String appId = getResources().getString(R.string.osiris_building_1);
 
                 OsirisApplication app = (OsirisApplication) getApplicationContext();
                 app.indoorLayoutManager(appId); //initialize with given map id

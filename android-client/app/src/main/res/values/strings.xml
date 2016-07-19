@@ -2,6 +2,7 @@
     <string name="app_name">MyGT Indoor</string>
 
     <string name="osiris_app_id">fgi_all</string>
+    <string name="osiris_building_1">building_1</string>
     <string name="osiris_app_host">http://139.162.157.15:8020/osiris</string>
 
     <string name="indoor_loading_buildings">Loading buildings</string>
