@@ -30,6 +30,13 @@
         android:layout_centerHorizontal="true"
         android:visibility="gone"/>
 
+    <Button
+        android:id="@+id/load_indoor_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:text="Load Indoor Map"/>
+
     <TextView
         android:id="@+id/tvCurrentStatusValue"
         android:layout_alignParentRight="true"

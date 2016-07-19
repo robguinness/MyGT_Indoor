@@ -24,6 +24,7 @@ import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.VisualElementDisplayer;
 import org.mapsforge.map.android.view.MapView;
 import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
+import org.mapsforge.map.layer.overlay.Marker;
 import org.mapsforge.map.layer.renderer.TileRendererLayer;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class MapsforgeDisplayer extends
 		
 		for (Layer layer : mapView.getLayerManager().getLayers()) {
 
-			if (!(layer instanceof TileRendererLayer || layer instanceof TileDownloadLayer)) {
+			if (!(layer instanceof TileRendererLayer || layer instanceof TileDownloadLayer || layer instanceof Marker)) {
 				removeElementsList.add(layer);
 			}
 		}

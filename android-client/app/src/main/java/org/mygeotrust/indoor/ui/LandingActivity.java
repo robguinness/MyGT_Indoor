@@ -10,9 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
+import com.fhc25.percepcion.osiris.mapviewer.ui.application.OsirisApplication;
 import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsirisOverlayManager;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.themes.VisualTheme;
@@ -72,6 +75,9 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     private TextView tvNumberAPsValue;
 
 
+    private Button btnLoadIndoor;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +128,19 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         tvTotalPowerValue = (TextView) findViewById(R.id.tvTotalPowerValue);
         tvNumberAPsValue = (TextView) findViewById(R.id.tvNumberAPsValue);
 
+        btnLoadIndoor = (Button) findViewById(R.id.load_indoor_btn);
+        btnLoadIndoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String appId = getResources().getString(R.string.osiris_app_id);
+
+                OsirisApplication app = (OsirisApplication) getApplicationContext();
+                app.indoorLayoutManager(appId); //initialize with given map id
+
+                LoadIndoorMap.loadMap(LandingActivity.this); // loading corresponding indoor layout
+            }
+        });
+
     }
 
 
@@ -140,10 +159,11 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.d(TAG, "Map load status: " + message);
+            Log.e(TAG, "Map load status: " + status+ ": " + message);
+
             // Check location update settings
-            CanGetLocationNew.addObserver(this);
-            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+           CanGetLocationNew.addObserver(this);
+           Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
             startActivity(intent);
         } else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
@@ -153,14 +173,14 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     public void onGetLocationStatus(Boolean status, String message) {
         Log.e(TAG, "Location status: " + status + " Message: " + message);
         // load the indoor layout from server
-        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
+//        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
     }
 
 
     @Override
     public void onIndoorMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "indoor Map load status: " + message);
+            Log.e(TAG, "indoor Map load status: " + status + ":  " + message);
             startProximityDetector();
 
         } else
@@ -204,16 +224,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             }
         };
 
-//        gpsReceiver = new BroadcastReceiver() {
-//
-//            @Override
-//              public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
-//              {
-//            	if (DEBUG_ON) Log.d(TAG,"Location received in Activty.");
-//          	  	Location location = intent.getExtras().getParcelable(GPS_VALUE);
-//          	  	if (DEBUG_ON) Log.d(TAG,"Location:" + location.toString());
-//              }
-//        };
 
         IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
         registerReceiver(currentStatusReceiver,currentStatusFilter);
@@ -221,12 +231,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
         registerReceiver(wifiInfoReceiver,wifiInfoFilter);
 
-
-        //IntentFilter gpsFilter = new IntentFilter(GPS_UPDATE);
-        //registerReceiver(gpsReceiver,gpsFilter);
-
         startService(new Intent(this, DetermineIndoorOutdoorService.class));
-        //startService(new Intent(this, GpsListenerService.class));
     }
 
 
