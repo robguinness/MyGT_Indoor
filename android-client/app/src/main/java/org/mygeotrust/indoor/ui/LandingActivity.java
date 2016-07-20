@@ -140,11 +140,11 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "Map load status: " + status+ ": " + message);
+            Log.e(TAG, "Map load status: " + status + ": " + message);
 
             // Check location update settings
-           CanGetLocationNew.addObserver(this);
-           Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+            CanGetLocationNew.addObserver(this);
+            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
             startActivity(intent);
         } else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
@@ -173,8 +173,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
      * This method starts the proximity detection service(s) upon successful completion
      * of the app lifecycle events.
      */
-    private void startProximityDetector()
-    {
+    private void startProximityDetector() {
         Log.e(TAG, "Proximity detector started!!");
 
         currentStatusReceiver = new BroadcastReceiver() {
@@ -183,7 +182,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
             {
                 tvCurrentStatus.setText(intent.getStringExtra(CURRENT_STATUS_VALUE));
-                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB,0)));
+                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB, 0)));
             }
         };
 
@@ -192,25 +191,24 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             @Override
             public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
             {
-                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE,0);
-                if (totalPower != 0){
+                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE, 0);
+                if (totalPower != 0) {
                     tvTotalPowerValue.setText(String.valueOf(totalPower));
-                }
-                else {
+                } else {
                     tvTotalPowerValue.setText("low");
                 }
 
-                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS,0)) + ")");
+                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS, 0)) + ")");
 
             }
         };
 
 
         IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
-        registerReceiver(currentStatusReceiver,currentStatusFilter);
+        registerReceiver(currentStatusReceiver, currentStatusFilter);
 
         IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
-        registerReceiver(wifiInfoReceiver,wifiInfoFilter);
+        registerReceiver(wifiInfoReceiver, wifiInfoFilter);
 
         startService(new Intent(this, DetermineIndoorOutdoorService.class));
     }
