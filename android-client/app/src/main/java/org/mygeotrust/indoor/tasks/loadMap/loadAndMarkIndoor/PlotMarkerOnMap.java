@@ -37,7 +37,7 @@ public class PlotMarkerOnMap {
     public final void  plotMarker(IMapLoader observer, MapsforgeMapView mapsforgeMapView)
     {
         Context c = ((LandingActivity) observer).getApplicationContext();
-        Drawable d = c.getResources().getDrawable(R.drawable.userpos_icon);
+        Drawable d = c.getResources().getDrawable(R.drawable.apartment);
 
         Bitmap bitmap = AndroidGraphicFactory.convertToBitmap(d);
 

@@ -10,9 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
+import com.fhc25.percepcion.osiris.mapviewer.ui.application.OsirisApplication;
 import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsirisOverlayManager;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.themes.VisualTheme;
@@ -72,6 +75,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     private TextView tvNumberAPsValue;
 
 
+    private Button btnLoadIndoor;
+    private Button btnLoadIndoor2;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +129,34 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         tvTotalPowerValue = (TextView) findViewById(R.id.tvTotalPowerValue);
         tvNumberAPsValue = (TextView) findViewById(R.id.tvNumberAPsValue);
 
+        btnLoadIndoor = (Button) findViewById(R.id.load_indoor_btn);
+        btnLoadIndoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+                String appId = getResources().getString(R.string.osiris_app_id);
+
+                OsirisApplication app = (OsirisApplication) getApplicationContext();
+                app.indoorLayoutManager(appId); //initialize with given map id
+
+                LoadIndoorMap.loadMap(LandingActivity.this); // loading corresponding indoor layout
+            }
+        });
+
+        btnLoadIndoor2 = (Button) findViewById(R.id.load_indoor_btn_2);
+        btnLoadIndoor2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+                String appId = getResources().getString(R.string.osiris_building_1);
+
+                OsirisApplication app = (OsirisApplication) getApplicationContext();
+                app.indoorLayoutManager(appId); //initialize with given map id
+
+                LoadIndoorMap.loadMap(LandingActivity.this); // loading corresponding indoor layout
+            }
+        });
+
     }
 
 
@@ -154,7 +189,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     public void onGetLocationStatus(Boolean status, String message) {
         Log.e(TAG, "Location status: " + status + " Message: " + message);
         // load the indoor layout from server
-        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
+//        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
     }
 
 
