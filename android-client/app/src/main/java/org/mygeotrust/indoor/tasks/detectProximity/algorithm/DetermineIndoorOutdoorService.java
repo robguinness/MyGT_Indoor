@@ -1,4 +1,4 @@
-package org.mygeotrust.indoor.tasks.detectProximity;
+package org.mygeotrust.indoor.tasks.detectProximity.algorithm;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -13,9 +13,9 @@ import android.widget.Toast;
 public class DetermineIndoorOutdoorService extends Service {
 	private static final boolean DEBUG_ON = false;
 	private static final String TAG = "DetermineIndoorOutdoorService";	
-    private static final String CURRENT_STATUS_VALUE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_VALUE";
-    private static final String CURRENT_STATUS_PROB = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_PROB";
-    private static final String CURRENT_STATUS_UPDATE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_UPDATE";
+    public static final String CURRENT_STATUS_VALUE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_VALUE";
+    public static final String CURRENT_STATUS_PROB = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_PROB";
+    public static final String CURRENT_STATUS_UPDATE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_UPDATE";
     private static final String WIFI_INFO_UPDATE = "com.contextawareness.determineindooroutdoor.WIFI_INFO_UPDATE";
     private static final String WIFI_POWER_LOW_EVENT = "com.contextawareness.determineindooroutdoor.WIFI_POWER_LOW_EVENT";
     private static final String TOTAL_POWER_VALUE = "com.contextawareness.determineindooroutdoor.TOTAL_POWER_VALUE";

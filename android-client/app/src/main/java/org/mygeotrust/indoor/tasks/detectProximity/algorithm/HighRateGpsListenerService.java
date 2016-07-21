@@ -1,4 +1,4 @@
-package org.mygeotrust.indoor.tasks.detectProximity;
+package org.mygeotrust.indoor.tasks.detectProximity.algorithm;
 
 import android.Manifest;
 import android.app.Service;

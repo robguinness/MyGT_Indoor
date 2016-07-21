@@ -1,11 +1,8 @@
 package org.mygeotrust.indoor.ui;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -27,7 +24,7 @@ import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
 import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocationNew;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
-import org.mygeotrust.indoor.tasks.detectProximity.DetermineIndoorOutdoorService;
+import org.mygeotrust.indoor.tasks.detectProximity.Controller;
 import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorMapLoader;
 import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoorMap;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
@@ -194,8 +191,9 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         //TODO: proximity detector should be started when GPS is on
         //TODO: and user should be prompted to turn it on !!
         //TODO: There should an explicit way (e.g., a button) to trun proximity detector on if user does not trun on GPS at this stage.
-        startProximityDetector();
+        //startProximityDetector();
 
+        Controller.getInstance().startProximityDetector(this);
     }
 
 
@@ -204,7 +202,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
      * This method starts the proximity detection service(s) upon successful completion
      * of the app lifecycle events.
      */
-    private void startProximityDetector() {
+    /*private void startProximityDetector() {
         Log.e(TAG, "Proximity detector started!!");
 
         currentStatusReceiver = new BroadcastReceiver() {
@@ -242,7 +240,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         registerReceiver(wifiInfoReceiver, wifiInfoFilter);
 
         startService(new Intent(this, DetermineIndoorOutdoorService.class));
-    }
+    }*/
 
 
     /**
@@ -355,9 +353,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         mapsforgeOsirisOverlayManager.destroy();
 
         //stop proximity detection services
-        unregisterReceiver(currentStatusReceiver);
+        /*unregisterReceiver(currentStatusReceiver);
         unregisterReceiver(wifiInfoReceiver);
-        stopService(new Intent(this, DetermineIndoorOutdoorService.class));
+        stopService(new Intent(this, DetermineIndoorOutdoorService.class));*/
+        Controller.getInstance().stopProximityDetector();
     }
 
 
