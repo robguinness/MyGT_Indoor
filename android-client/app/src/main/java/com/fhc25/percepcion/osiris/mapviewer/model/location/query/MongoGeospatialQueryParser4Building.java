@@ -95,6 +95,7 @@ public class MongoGeospatialQueryParser4Building implements IMongoGeospatialQuer
             orArray.put(createJsonObjectType("indoor", "way", "corridor"));
             orArray.put(createJsonObjectType("indoor", "way", "elevator"));
             orArray.put(createJsonObjectType("indoor", "way", "level"));
+            orArray.put(createJsonObjectType("amenity", "way", "toilets"));
 
             root.put("$or", orArray);
 
@@ -156,6 +157,7 @@ public class MongoGeospatialQueryParser4Building implements IMongoGeospatialQuer
             orArray.put(createJsonObjectType("indoor", "way", "corridor"));
             orArray.put(createJsonObjectType("indoor", "way", "elevator"));
             orArray.put(createJsonObjectType("indoor", "way", "level"));
+            orArray.put(createJsonObjectType("amenity", "way", "toilets"));
 
             root.put("$or", orArray);
 

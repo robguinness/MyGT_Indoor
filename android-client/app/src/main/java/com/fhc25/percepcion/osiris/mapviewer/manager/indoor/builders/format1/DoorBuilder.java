@@ -18,6 +18,7 @@ package com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format1;
 
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.BuildingElementBuilder;
 import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Door;
+import com.fhc25.percepcion.osiris.mapviewer.model.indoor.DoorType;
 import com.fhc25.percepcion.osiris.mapviewer.model.location.Feature;
 import com.fhc25.percepcion.osiris.mapviewer.model.location.Point;
 
@@ -42,6 +43,7 @@ public class DoorBuilder implements BuildingElementBuilder<Door> {
         Point point = (Point) feature.getGeometry();
         Long id = Long.parseLong(feature.getProperties().get("@id"));
         String level = "";
+        DoorType type = DoorType.NORMAL;
 
         for (int i = 0; i < feature.getPropertiesRelations().size(); i++) {
             if (feature.getPropertiesRelations().get(i).containsKey("level")) {
@@ -55,7 +57,19 @@ public class DoorBuilder implements BuildingElementBuilder<Door> {
             return null;
         }
 
-        return new Door(id, "", point, level);
+        // door sub-type implementation
+        if(feature.getProperties().containsKey("entrance")){
+            switch (feature.getProperties().get("entrance")){
+                case "main":
+                    type = DoorType.MAIN_ENTRANCE;
+                    break;
+                case "exit":
+                    type = DoorType.EXIT;
+                    break;
+            }
+        }
+
+        return new Door(id, "", point, level, type);
     }
 
 }

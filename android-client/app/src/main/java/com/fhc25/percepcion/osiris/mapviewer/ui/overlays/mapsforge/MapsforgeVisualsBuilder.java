@@ -24,6 +24,7 @@ import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Office;
 import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Room;
 import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Shell;
 import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Stairway;
+import com.fhc25.percepcion.osiris.mapviewer.model.indoor.Toilet;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.DrawableMarker;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.IVisualsBuilder;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.LocalizedVisualElement;
@@ -55,6 +56,8 @@ public class MapsforgeVisualsBuilder implements IVisualsBuilder {
             visualElement = new MapsforgeOffice(theme, (Office) buildingElement);
         } else if (buildingElement instanceof Room) {
             visualElement = new MapsforgeRoom(theme, (Room) buildingElement);
+        } else if (buildingElement instanceof Toilet) {
+            visualElement = new MapsforgeToilet(theme, (Toilet) buildingElement);
         } else if (buildingElement instanceof Shell) {
             visualElement = new MapsforgeShell(theme, (Shell) buildingElement);
         } else if (buildingElement instanceof Stairway) {

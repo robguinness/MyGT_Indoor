@@ -24,6 +24,7 @@ import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format1.Off
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format1.RoomBuilder;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format1.ShellBuilder;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format1.StairwayBuilder;
+import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format1.ToiletBuilder;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.CorridorBuilder2;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.DoorBuilder2;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.ElevatorBuilder2;
@@ -31,6 +32,7 @@ import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.Off
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.RoomBuilder2;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.ShellBuilder2;
 import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.StairwayBuilder2;
+import com.fhc25.percepcion.osiris.mapviewer.manager.indoor.builders.format2.ToiletBuilder2;
 import com.fhc25.percepcion.osiris.mapviewer.model.indoor.BuildingElement;
 import com.fhc25.percepcion.osiris.mapviewer.model.indoor.BuildingGroup;
 import com.fhc25.percepcion.osiris.mapviewer.model.location.Feature;
@@ -65,6 +67,7 @@ public class BuildingGroupBuilder implements IBuildingGroupBuilder {
         mBuilders.add(new CorridorBuilder());
         mBuilders.add(new ElevatorBuilder());
         mBuilders.add(new OfficeBuilder());
+        mBuilders.add(new ToiletBuilder());
         mBuilders.add(new RoomBuilder());
         mBuilders.add(new ShellBuilder());
         mBuilders.add(new StairwayBuilder());
@@ -73,6 +76,7 @@ public class BuildingGroupBuilder implements IBuildingGroupBuilder {
         mBuilders.add(new CorridorBuilder2());
         mBuilders.add(new ElevatorBuilder2());
         mBuilders.add(new OfficeBuilder2());
+        mBuilders.add(new ToiletBuilder2());
         mBuilders.add(new RoomBuilder2());
         mBuilders.add(new ShellBuilder2());
         mBuilders.add(new StairwayBuilder2());

@@ -23,8 +23,14 @@ import android.graphics.Color;
  */
 public class IndoorVisualTheme {
 
-	protected IndoorElementTheme doorTheme = new IndoorElementTheme(0.8f,
+	protected IndoorElementTheme doorTheme = new IndoorElementTheme(1.0f,
 			Color.rgb(241, 148, 138), Color.WHITE, 1);
+
+	protected IndoorElementTheme mainDoorTheme = new IndoorElementTheme(2.0f,
+			Color.GREEN, Color.WHITE, 1);
+
+	protected IndoorElementTheme exitDoorTheme = new IndoorElementTheme(2.0f,
+			Color.RED, Color.WHITE, 1);
 
 	protected IndoorElementTheme shellTheme = new IndoorElementTheme(0f,
 			Color.WHITE, Color.rgb(233, 127, 19), 30);
@@ -44,6 +50,9 @@ public class IndoorVisualTheme {
 	protected IndoorElementTheme roomTheme = new IndoorElementTheme(0f,
 			Color.rgb(174, 214, 241), Color.DKGRAY, 10);
 
+	protected IndoorElementTheme toiletTheme = new IndoorElementTheme(0f,
+			Color.rgb(255, 255, 0), Color.DKGRAY, 15);
+
 	protected IndoorElementTheme tinyBuildingTheme = new IndoorElementTheme(
 			0f, Color.rgb(255, 248, 235), Color.rgb(233, 127, 19), 4);
 
@@ -54,6 +63,24 @@ public class IndoorVisualTheme {
 	 */
 	public IndoorElementTheme getDoorTheme() {
 		return doorTheme;
+	}
+
+	/**
+	 * Gets the main entrance doors theme
+	 *
+	 * @return theme
+	 */
+	public IndoorElementTheme getMainDoorTheme() {
+		return mainDoorTheme;
+	}
+
+	/**
+	 * Gets the exit doors theme
+	 *
+	 * @return theme
+	 */
+	public IndoorElementTheme getExitDoorTheme() {
+		return exitDoorTheme;
 	}
 
 	/**
@@ -108,6 +135,15 @@ public class IndoorVisualTheme {
 	 */
 	public IndoorElementTheme getRoomTheme() {
 		return roomTheme;
+	}
+
+	/**
+	 * Gets the toilets theme
+	 *
+	 * @return theme
+	 */
+	public IndoorElementTheme getToiletTheme() {
+		return toiletTheme;
 	}
 
 	/**

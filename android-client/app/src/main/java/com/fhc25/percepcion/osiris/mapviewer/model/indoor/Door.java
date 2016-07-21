@@ -26,6 +26,8 @@ import java.io.Serializable;
  */
 public class Door extends BuildingPoint implements Serializable {
 
+	private DoorType type;
+
 	/**
 	 * Default constructor
 	 * 
@@ -34,8 +36,12 @@ public class Door extends BuildingPoint implements Serializable {
 	 * @param position
 	 * @param level
 	 */
-	public Door(Long id, String name, Point position, String level) {
+	public Door(Long id, String name, Point position, String level, DoorType type) {
 		super(id, name, position, level);
+		this.type = type;
 	}
 
+	public DoorType getType() {
+		return type;
+	}
 }

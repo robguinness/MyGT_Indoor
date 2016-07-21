@@ -38,9 +38,21 @@ public class MapsforgeDoor extends MapsforgeVisualElement {
 	 * @param door
 	 */
 	public MapsforgeDoor(VisualTheme visualTheme, Door door) {
-		
-		this.door = door;
 		IndoorElementTheme elementTheme = visualTheme.getIndoorTheme().getDoorTheme();
+		this.door = door;
+
+		switch (door.getType()){
+			case MAIN_ENTRANCE:
+				elementTheme = visualTheme.getIndoorTheme().getMainDoorTheme();
+				break;
+			case EXIT:
+				elementTheme = visualTheme.getIndoorTheme().getExitDoorTheme();
+				break;
+			case NORMAL:
+				elementTheme = visualTheme.getIndoorTheme().getDoorTheme();
+				break;
+		}
+
 		circle = getCircle(this.door.getGeometry(), elementTheme);
 	}
 	
