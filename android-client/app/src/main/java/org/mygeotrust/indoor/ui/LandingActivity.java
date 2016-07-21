@@ -165,6 +165,8 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         if (status) {
             Log.d(TAG, "Bind Status: successful!");
             //now load the map
+            //this loads open street map and marks the buildings that have indoor mapping available.
+            //this also saves the indoor data (partial) localy for proximity detection.
             new LoadMap(this, mapsforgeMapView);
 
         } else
@@ -187,21 +189,15 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
 
     public void onGetLocationStatus(Boolean status, String message) {
-        Log.e(TAG, "Location status: " + status + " Message: " + message);
-        // load the indoor layout from server
-//        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
+
+        //Start proximity detector
+        //TODO: proximity detector should be started when GPS is on
+        //TODO: and user should be prompted to turn it on !!
+        //TODO: There should an explicit way (e.g., a button) to trun proximity detector on if user does not trun on GPS at this stage.
+        startProximityDetector();
+
     }
 
-
-    @Override
-    public void onIndoorMapLoaded(Boolean status, String message) {
-        if (status) {
-            Log.e(TAG, "indoor Map load status: " + status + ":  " + message);
-            startProximityDetector();
-
-        } else
-            Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
-    }
 
 
     /**
@@ -246,6 +242,26 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         registerReceiver(wifiInfoReceiver, wifiInfoFilter);
 
         startService(new Intent(this, DetermineIndoorOutdoorService.class));
+    }
+
+
+    /**
+     * This call back method fires when a request for a indoor map loading returns.
+     *
+     * NOTE: Indoor map is loaded as per request (e.g., while user taps on a building which is indoor mapped) or
+     * the proximity detector detects an indoor location that is already mapped and user wants to view the indoor map.
+     *
+     * @param status: success / failure
+     * @param message: message associated with the cause of failure or success.
+     */
+    @Override
+    public void onIndoorMapLoaded(Boolean status, String message) {
+        if (status) {
+            Log.e(TAG, "indoor Map load status: " + status + ":  " + message);
+
+
+        } else
+            Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
     }
 
 
