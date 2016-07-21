@@ -24,14 +24,15 @@ import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
 import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocationNew;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
-import org.mygeotrust.indoor.tasks.detectProximity.Controller;
+import org.mygeotrust.indoor.tasks.detectProximity.IProximityDetectorController;
+import org.mygeotrust.indoor.tasks.detectProximity.ProximityDetectorController;
 import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorMapLoader;
 import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoorMap;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
 import org.mygeotrust.indoor.tasks.loadMap.LoadMap;
 
 
-public class LandingActivity extends AppCompatActivity implements ILandingActivity, IBindService, IMapLoader, ICanGetLocation, IIndoorMapLoader {
+public class LandingActivity extends AppCompatActivity implements ILandingActivity, IBindService, IMapLoader, ICanGetLocation, IIndoorMapLoader, IProximityDetectorController {
 
 
     private static final String TAG = LandingActivity.class.toString();
@@ -193,63 +194,17 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         //TODO: There should an explicit way (e.g., a button) to trun proximity detector on if user does not trun on GPS at this stage.
         //startProximityDetector();
 
-        Controller.getInstance().startProximityDetector(this);
+        ProximityDetectorController.getInstance().startProximityDetector(this, this);
     }
-
-
-
-    /**
-     * This method starts the proximity detection service(s) upon successful completion
-     * of the app lifecycle events.
-     */
-    /*private void startProximityDetector() {
-        Log.e(TAG, "Proximity detector started!!");
-
-        currentStatusReceiver = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
-            {
-                tvCurrentStatus.setText(intent.getStringExtra(CURRENT_STATUS_VALUE));
-                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB, 0)));
-            }
-        };
-
-        wifiInfoReceiver = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
-            {
-                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE, 0);
-                if (totalPower != 0) {
-                    tvTotalPowerValue.setText(String.valueOf(totalPower));
-                } else {
-                    tvTotalPowerValue.setText("low");
-                }
-
-                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS, 0)) + ")");
-
-            }
-        };
-
-
-        IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
-        registerReceiver(currentStatusReceiver, currentStatusFilter);
-
-        IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
-        registerReceiver(wifiInfoReceiver, wifiInfoFilter);
-
-        startService(new Intent(this, DetermineIndoorOutdoorService.class));
-    }*/
 
 
     /**
      * This call back method fires when a request for a indoor map loading returns.
-     *
+     * <p/>
      * NOTE: Indoor map is loaded as per request (e.g., while user taps on a building which is indoor mapped) or
      * the proximity detector detects an indoor location that is already mapped and user wants to view the indoor map.
      *
-     * @param status: success / failure
+     * @param status:  success / failure
      * @param message: message associated with the cause of failure or success.
      */
     @Override
@@ -260,6 +215,33 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
         } else
             Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
+    }
+
+
+    /**
+     * this method is invoked while there is a change in any of the following four parameter in determining
+     * user location with respect to indoor / outdoor location
+     *
+     * @param locationStatus
+     * @param probability
+     * @param power
+     * @param noOfAccessPoints
+     */
+    @Override
+    public void onIndoorOutdoorStatusChanged(final ProximityDetectorController.LocationStatus locationStatus, final String probability, final String power, final String noOfAccessPoints) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(locationStatus == ProximityDetectorController.LocationStatus.outdoor)
+                    tvCurrentStatus.setText("Outdoor");
+                else if(locationStatus == ProximityDetectorController.LocationStatus.indoor)
+                    tvCurrentStatus.setText("Indoor");
+
+                tvCurrentStatusProb.setText(probability);
+                tvTotalPowerValue.setText(power);
+                tvNumberAPsValue.setText(noOfAccessPoints);
+            }
+        });
     }
 
 
@@ -353,10 +335,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         mapsforgeOsirisOverlayManager.destroy();
 
         //stop proximity detection services
-        /*unregisterReceiver(currentStatusReceiver);
-        unregisterReceiver(wifiInfoReceiver);
-        stopService(new Intent(this, DetermineIndoorOutdoorService.class));*/
-        Controller.getInstance().stopProximityDetector();
+        ProximityDetectorController.getInstance().stopProximityDetector();
     }
 
 

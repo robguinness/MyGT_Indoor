@@ -12,40 +12,54 @@ import org.mygeotrust.indoor.tasks.detectProximity.algorithm.WifiReceiver;
 /**
  * Created by Dr. Mahbubul Syeed on 21.7.2016.
  */
-public class Controller {
+public class ProximityDetectorController {
 
-    private final String TAG = Controller.class.getName();
+    private final String TAG = ProximityDetectorController.class.getName();
 
-    private static Controller ourInstance = new Controller();
+    private static ProximityDetectorController ourInstance = new ProximityDetectorController();
 
-    public static Controller getInstance() {
+    public static ProximityDetectorController getInstance() {
         return ourInstance;
     }
 
-    private Controller() {
+    private ProximityDetectorController() {
     }
+
+    public enum LocationStatus {
+        indoor,
+        outdoor
+    }
+
+    private String indoorOutdoor = "";
+    private String probability = "";
+    private String powerLevel = "";
+    private String noOfAccessPoints = "";
 
     private BroadcastReceiver currentStatusReceiver;
     private BroadcastReceiver wifiInfoReceiver;
 
     private static Context activityContext;
+    private IProximityDetectorController observer;
 
-    public final void startProximityDetector(Context context)
-    {
+    public final void startProximityDetector(Context context, IProximityDetectorController observer) {
         Log.e(TAG, "Proximity detector started!!");
 
         //save the context
         activityContext = context;
+        this.observer = observer;
 
         currentStatusReceiver = new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
             {
-                Log.e(TAG, "indoor/outdoor: " + intent.getStringExtra(DetermineIndoorOutdoorService.CURRENT_STATUS_VALUE));
-                Log.e(TAG, "probability: " + String.valueOf(intent.getIntExtra(DetermineIndoorOutdoorService.CURRENT_STATUS_PROB, 0)));
-                //tvCurrentStatus.setText(intent.getStringExtra(CURRENT_STATUS_VALUE));
-                //tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB, 0)));
+                indoorOutdoor = intent.getStringExtra(DetermineIndoorOutdoorService.CURRENT_STATUS_VALUE);
+                probability = String.valueOf(intent.getIntExtra(DetermineIndoorOutdoorService.CURRENT_STATUS_PROB, 0));
+
+                Log.e(TAG, "indoor/outdoor: " + indoorOutdoor);
+                Log.e(TAG, "probability: " + probability);
+
+                notifyObserver();
             }
         };
 
@@ -56,15 +70,17 @@ public class Controller {
             {
                 int totalPower = intent.getIntExtra(WifiReceiver.TOTAL_POWER_VALUE, 0);
                 if (totalPower != 0) {
-                    //tvTotalPowerValue.setText(String.valueOf(totalPower));
-                    Log.e(TAG, "total power: " + String.valueOf(totalPower));
+                    powerLevel = String.valueOf(totalPower);
+                    Log.e(TAG, "total power: " + powerLevel);
                 } else {
-                    //tvTotalPowerValue.setText("low");
-                    Log.e(TAG, "total power: " + "low");
+                    powerLevel = "low";
+                    Log.e(TAG, "total power: " + powerLevel);
                 }
 
-                //tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS, 0)) + ")");
-                Log.e(TAG, "total access points: " + String.valueOf(intent.getIntExtra(WifiReceiver.NUMBER_ACCESS_POINTS, 0)));
+                noOfAccessPoints = String.valueOf(intent.getIntExtra(WifiReceiver.NUMBER_ACCESS_POINTS, 0));
+                Log.e(TAG, "total access points: " + noOfAccessPoints);
+
+                notifyObserver();
             }
         };
 
@@ -79,11 +95,15 @@ public class Controller {
     }
 
 
-
-    public final void stopProximityDetector()
-    {
+    public final void stopProximityDetector() {
         activityContext.unregisterReceiver(currentStatusReceiver);
         activityContext.unregisterReceiver(wifiInfoReceiver);
         activityContext.stopService(new Intent(activityContext, DetermineIndoorOutdoorService.class));
+    }
+
+
+    private void notifyObserver() {
+        if (null != observer)
+            observer.onIndoorOutdoorStatusChanged(indoorOutdoor.equalsIgnoreCase("indoor")? LocationStatus.indoor : LocationStatus.outdoor, probability, powerLevel, noOfAccessPoints);
     }
 }
