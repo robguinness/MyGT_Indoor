@@ -165,6 +165,8 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         if (status) {
             Log.d(TAG, "Bind Status: successful!");
             //now load the map
+            //this loads open street map and marks the buildings that have indoor mapping available.
+            //this also saves the indoor data (partial) localy for proximity detection.
             new LoadMap(this, mapsforgeMapView);
 
         } else
@@ -175,11 +177,11 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     @Override
     public void onMapLoaded(Boolean status, String message) {
         if (status) {
-            Log.e(TAG, "Map load status: " + status+ ": " + message);
+            Log.e(TAG, "Map load status: " + status + ": " + message);
 
             // Check location update settings
-           CanGetLocationNew.addObserver(this);
-           Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+            CanGetLocationNew.addObserver(this);
+            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
             startActivity(intent);
         } else
             Log.e(TAG, "Map load Failed! Error Message: " + message);
@@ -187,29 +189,22 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
 
     public void onGetLocationStatus(Boolean status, String message) {
-        Log.e(TAG, "Location status: " + status + " Message: " + message);
-        // load the indoor layout from server
-//        LoadIndoorMap.loadMap(this); // TODO: parameter need to be refactored.
+
+        //Start proximity detector
+        //TODO: proximity detector should be started when GPS is on
+        //TODO: and user should be prompted to turn it on !!
+        //TODO: There should an explicit way (e.g., a button) to trun proximity detector on if user does not trun on GPS at this stage.
+        startProximityDetector();
+
     }
 
-
-    @Override
-    public void onIndoorMapLoaded(Boolean status, String message) {
-        if (status) {
-            Log.e(TAG, "indoor Map load status: " + status + ":  " + message);
-            startProximityDetector();
-
-        } else
-            Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
-    }
 
 
     /**
      * This method starts the proximity detection service(s) upon successful completion
      * of the app lifecycle events.
      */
-    private void startProximityDetector()
-    {
+    private void startProximityDetector() {
         Log.e(TAG, "Proximity detector started!!");
 
         currentStatusReceiver = new BroadcastReceiver() {
@@ -218,7 +213,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
             {
                 tvCurrentStatus.setText(intent.getStringExtra(CURRENT_STATUS_VALUE));
-                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB,0)));
+                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB, 0)));
             }
         };
 
@@ -227,27 +222,46 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             @Override
             public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
             {
-                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE,0);
-                if (totalPower != 0){
+                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE, 0);
+                if (totalPower != 0) {
                     tvTotalPowerValue.setText(String.valueOf(totalPower));
-                }
-                else {
+                } else {
                     tvTotalPowerValue.setText("low");
                 }
 
-                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS,0)) + ")");
+                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS, 0)) + ")");
 
             }
         };
 
 
         IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
-        registerReceiver(currentStatusReceiver,currentStatusFilter);
+        registerReceiver(currentStatusReceiver, currentStatusFilter);
 
         IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
-        registerReceiver(wifiInfoReceiver,wifiInfoFilter);
+        registerReceiver(wifiInfoReceiver, wifiInfoFilter);
 
         startService(new Intent(this, DetermineIndoorOutdoorService.class));
+    }
+
+
+    /**
+     * This call back method fires when a request for a indoor map loading returns.
+     *
+     * NOTE: Indoor map is loaded as per request (e.g., while user taps on a building which is indoor mapped) or
+     * the proximity detector detects an indoor location that is already mapped and user wants to view the indoor map.
+     *
+     * @param status: success / failure
+     * @param message: message associated with the cause of failure or success.
+     */
+    @Override
+    public void onIndoorMapLoaded(Boolean status, String message) {
+        if (status) {
+            Log.e(TAG, "indoor Map load status: " + status + ":  " + message);
+
+
+        } else
+            Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
     }
 
 
