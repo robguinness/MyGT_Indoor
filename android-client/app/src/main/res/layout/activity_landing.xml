@@ -83,4 +83,16 @@
         android:layout_height="wrap_content"
         android:text="Number APs Value"/>
 
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Detector OFF"
+        android:id="@+id/tgBtnInOutDetect"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/tvNumberAPsValue"
+        android:layout_alignEnd="@+id/tvNumberAPsValue"
+        android:layout_marginBottom="25dp"
+        android:layout_marginRight="5dp"
+        android:checked="false"/>
+
 </RelativeLayout>

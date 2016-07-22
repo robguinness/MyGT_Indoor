@@ -1,4 +1,4 @@
-package org.mygeotrust.indoor.tasks.detectProximity;
+package org.mygeotrust.indoor.tasks.detectIndoorOutdoor;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,23 +6,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-import org.mygeotrust.indoor.tasks.detectProximity.algorithm.DetermineIndoorOutdoorService;
-import org.mygeotrust.indoor.tasks.detectProximity.algorithm.WifiReceiver;
+import org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.DetermineIndoorOutdoorService;
+import org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.WifiReceiver;
 
 /**
  * Created by Dr. Mahbubul Syeed on 21.7.2016.
  */
-public class ProximityDetectorController {
+public class IndoorOutdoorDetectorController {
 
-    private final String TAG = ProximityDetectorController.class.getName();
+    private final String TAG = IndoorOutdoorDetectorController.class.getName();
 
-    private static ProximityDetectorController ourInstance = new ProximityDetectorController();
+    private static IndoorOutdoorDetectorController ourInstance = new IndoorOutdoorDetectorController();
 
-    public static ProximityDetectorController getInstance() {
+    public static IndoorOutdoorDetectorController getInstance() {
         return ourInstance;
     }
 
-    private ProximityDetectorController() {
+    private IndoorOutdoorDetectorController() {
     }
 
     public enum LocationStatus {
@@ -39,9 +39,9 @@ public class ProximityDetectorController {
     private BroadcastReceiver wifiInfoReceiver;
 
     private static Context activityContext;
-    private IProximityDetectorController observer;
+    private IindoorOutdoorDetectorController observer;
 
-    public final void startProximityDetector(Context context, IProximityDetectorController observer) {
+    public final void startIndoorOutdoorDetector(Context context, IindoorOutdoorDetectorController observer) {
         Log.e(TAG, "Proximity detector started!!");
 
         //save the context
@@ -95,7 +95,7 @@ public class ProximityDetectorController {
     }
 
 
-    public final void stopProximityDetector() {
+    public final void stopIndoorOutdoorDetector() {
         activityContext.unregisterReceiver(currentStatusReceiver);
         activityContext.unregisterReceiver(wifiInfoReceiver);
         activityContext.stopService(new Intent(activityContext, DetermineIndoorOutdoorService.class));

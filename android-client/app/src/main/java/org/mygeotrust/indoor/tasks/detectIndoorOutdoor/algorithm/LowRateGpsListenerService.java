@@ -1,4 +1,4 @@
-package org.mygeotrust.indoor.tasks.detectProximity.algorithm;
+package org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm;
 
 import android.Manifest;
 import android.app.Service;
@@ -15,9 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-public class HighRateGpsListenerService extends Service implements LocationListener {
+public class LowRateGpsListenerService extends Service implements LocationListener {
 
-	private static final boolean DEBUG_ON = false;
 	private static final String TAG = "GpsListenerService";
 	private static final String GPS_VALUE = "com.contextawareness.determineindooroutdoor.GPS_VALUE";
 	private static final String GPS_UPDATE = "com.contextawareness.determineindooroutdoor.GPS_UPDATE";
@@ -33,12 +32,13 @@ public class HighRateGpsListenerService extends Service implements LocationListe
 
 	@Override
 	public void onCreate() {
-		Toast.makeText(this, "GPS Service Created", Toast.LENGTH_LONG).show();
-		if (DEBUG_ON) Log.d(TAG, "onCreate");
+		Toast.makeText(this, "Low Rate GPS Service Created", Toast.LENGTH_LONG).show();
+		Log.d(TAG, "onCreate");
 		//Intent intentCurrentStatus = new Intent(CURRENT_STATUS_UPDATE);
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		if (DEBUG_ON) Log.d(TAG, "Location updates requested");
+		Log.d(TAG, "Location updates requested");
+		// Listen for updates every 30 seconds
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			// TODO: Consider calling
 			//    ActivityCompat#requestPermissions
@@ -49,7 +49,7 @@ public class HighRateGpsListenerService extends Service implements LocationListe
 			// for ActivityCompat#requestPermissions for more details.
 			return;
 		}
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, this);
 
 		intentCurrentStatus = new Intent(GPS_UPDATE);
 		intentGpsUpdate = new Intent(GPS_UPDATE);
@@ -60,8 +60,8 @@ public class HighRateGpsListenerService extends Service implements LocationListe
 
 	@Override
 	public void onDestroy() {
-		Toast.makeText(this, "GPS Service Stopped", Toast.LENGTH_LONG).show();
-		if (DEBUG_ON) Log.d(TAG, "onDestroy");
+		Toast.makeText(this, "Low Rate GPS Service Stopped", Toast.LENGTH_LONG).show();
+		Log.d(TAG, "onDestroy");
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			// TODO: Consider calling
 			//    ActivityCompat#requestPermissions
@@ -73,13 +73,13 @@ public class HighRateGpsListenerService extends Service implements LocationListe
 			return;
 		}
 		locationManager.removeUpdates(this);
-		if (DEBUG_ON) Log.d(TAG, "Location update requests have been removed.");
+		Log.d(TAG, "Location update requests have been removed.");
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Toast.makeText(this, "GPS Service Started", Toast.LENGTH_LONG).show();
-		if (DEBUG_ON) Log.d(TAG, "onStart");		
+		Toast.makeText(this, "Low Rate GPS Service Started", Toast.LENGTH_LONG).show();
+		Log.d(TAG, "onStart");		
 		
 	    
 	    // We want this service to continue running until it is explicitly
@@ -93,7 +93,7 @@ public class HighRateGpsListenerService extends Service implements LocationListe
 		public void run() {
 			//Intent intentCurrentStatus = new Intent(GPS_UPDATE);
 			for (int i=0; i<50;i++){
-				if (DEBUG_ON) Log.d("run", "i = " + i);
+				Log.d("run", "i = " + i);
 				if (i%2 == 0){
 					intentCurrentStatus.putExtra(GPS_VALUE, "outdoor");
 				}
@@ -110,7 +110,7 @@ public class HighRateGpsListenerService extends Service implements LocationListe
 
 	public void onLocationChanged(Location location) {
 		// TODO Auto-generated method stub
-		if (DEBUG_ON) Log.d(TAG, "Location update received.");
+		Log.d(TAG, "Location update received.");
 		intentGpsUpdate.putExtra(GPS_VALUE, location);
 		sendBroadcast(intentGpsUpdate);
 	}

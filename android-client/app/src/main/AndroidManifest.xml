@@ -50,19 +50,19 @@
         </activity>
 
         <service
-            android:name="org.mygeotrust.indoor.tasks.detectProximity.algorithm.DetermineIndoorOutdoorService"
+            android:name="org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.DetermineIndoorOutdoorService"
             android:exported="false"/>
         <service
-            android:name="org.mygeotrust.indoor.tasks.detectProximity.algorithm.HighRateGpsListenerService"
+            android:name="org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.HighRateGpsListenerService"
             android:exported="false"/>
         <service
-            android:name="org.mygeotrust.indoor.tasks.detectProximity.algorithm.HighRateGpsStatusListenerService"
+            android:name="org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.HighRateGpsStatusListenerService"
             android:exported="false"/>
         <service
-            android:name="org.mygeotrust.indoor.tasks.detectProximity.algorithm.LowRateGpsListenerService"
+            android:name="org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.LowRateGpsListenerService"
             android:exported="false"/>
         <service
-            android:name="org.mygeotrust.indoor.tasks.detectProximity.algorithm.LowRateGpsStatusListenerService"
+            android:name="org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm.LowRateGpsStatusListenerService"
             android:exported="false"/>
     </application>
 
