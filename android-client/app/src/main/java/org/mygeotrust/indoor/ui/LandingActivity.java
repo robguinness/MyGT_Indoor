@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -54,6 +55,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     private FloorSelectorViewController floorSelectorViewController;
 
     private ToggleButton btnInOutSet;
+    private Boolean isDetectorStarted = false;
 
     //TODO:Temporary views to test indoor / outdoor proximity detection
     private TextView tvCurrentStatus;
@@ -70,11 +72,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidGraphicFactory.createInstance(this.getApplication());
-
         setContentView(R.layout.activity_landing);
-
         initViews();
 
+        new BindToMyGtService(getApplicationContext(), this);
 
        /*
         * This code is related to lifecycle event of the activity while onCreate is called, e.g., screen orientation change. to load the last known
@@ -83,10 +84,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
        if (savedInstanceState != null) {
             LoadIndoorMap.loadFromSaveState(savedInstanceState);
         }*/
-
-
-        new BindToMyGtService(getApplicationContext(), this);
-
     }
 
 
@@ -111,6 +108,23 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         mapsforgeMapView.addObserver(floorSelectorViewController);
 
         btnInOutSet = (ToggleButton) findViewById(R.id.tgBtnInOutDetect);
+        btnInOutSet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    //if indoor/outdoor detector is not started then initiate the procedure.
+                    if (!isDetectorStarted) {
+                        isDetectorStarted = true;
+                        checkAndSetLocationSettings();
+                    }
+                }
+                //otherwise, turn off the detector.
+                else {
+                    isDetectorStarted = false;
+                    IndoorOutdoorDetectorController.getInstance().stopIndoorOutdoorDetector();
+                }
+            }
+        });
+
 
         //Temporary views to test indoor / outdoor proximity detection
         tvCurrentStatus = (TextView) findViewById(R.id.tvCurrentStatusValue);
@@ -184,8 +198,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         Dialogs.getInstance().unregisterObserver();
 
         //if user agrees to start the indoor/outdoor detector
-        if(status == SelectionStatus.ok_pressed)
-        {
+        if (status == SelectionStatus.ok_pressed) {
             checkAndSetLocationSettings();
         }
     }
@@ -200,19 +213,16 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
         //Start proximity detector
         //TODO: There should an explicit way (e.g., a button) to trun proximity detector on if user does not trun on GPS at this stage.
-        //startIndoorOutdoorDetector();
 
         //TODO: Do we need to check WiFi status as well?!
         //if GPS is allowed in both Profile and in Device then start
-        if (status)
+        if (status) {
             IndoorOutdoorDetectorController.getInstance().startIndoorOutdoorDetector(this, this);
-        else {
+            toggleIndoorOutdoorButtonStatus(true);
+        } else {
             Dialogs.getInstance().showInfoDialog(this, " Cannot start indoor/outdoor Detector.", " GPS use Status: " + status + "\n Error: " + message, R.drawable.ic_warning, R.color.colorRed);
         }
     }
-
-
-
 
 
     /**
@@ -242,8 +252,8 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     }
 
 
-
     //TODO: the following callback method in test mode now!
+
     /**
      * This call back method fires when a request for a indoor map loading returns.
      * <p/>
@@ -262,7 +272,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         } else
             Log.e(TAG, "Indoor Map load Failed! Error Message: " + message);
     }
-
 
 
     /**
@@ -286,7 +295,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
      * Helper methods
      * ---------------
      */
-
+    private void toggleIndoorOutdoorButtonStatus(Boolean status) {
+        btnInOutSet.setChecked(status);
+        isDetectorStarted = status;
+    }
 
     /**
      * ----------------------------------------------
