@@ -96,9 +96,11 @@ public class IndoorOutdoorDetectorController {
 
 
     public final void stopIndoorOutdoorDetector() {
-        activityContext.unregisterReceiver(currentStatusReceiver);
-        activityContext.unregisterReceiver(wifiInfoReceiver);
-        activityContext.stopService(new Intent(activityContext, DetermineIndoorOutdoorService.class));
+        if(activityContext != null) {
+            activityContext.unregisterReceiver(currentStatusReceiver);
+            activityContext.unregisterReceiver(wifiInfoReceiver);
+            activityContext.stopService(new Intent(activityContext, DetermineIndoorOutdoorService.class));
+        }
     }
 
 

@@ -169,11 +169,12 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             Log.d(TAG, "Bind Status: successful!");
             //now load the map
             //this loads open street map and marks the buildings that have indoor mapping available.
-            //this also saves the indoor data (partial) localy for proximity detection.
+            //this also saves the indoor data (partial) locally for indoor/outdoor detection.
             new LoadMap(this, mapsforgeMapView);
 
-        } else
-            Log.e(TAG, "Bind Failed! Please check that MyGeoTrust is properly installed in your device and restart again. Thanks");
+        }
+        else
+            Dialogs.getInstance().showInfoDialog(this, "Bind to MyGtService Failed!", "Please check that MyGeoTrust is properly installed in your device and restart the app again.", R.drawable.ic_warning, R.color.colorRed);
     }
 
 
@@ -221,6 +222,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             toggleIndoorOutdoorButtonStatus(true);
         } else {
             Dialogs.getInstance().showInfoDialog(this, " Cannot start indoor/outdoor Detector.", " GPS use Status: " + status + "\n Error: " + message, R.drawable.ic_warning, R.color.colorRed);
+            toggleIndoorOutdoorButtonStatus(false);
         }
     }
 
