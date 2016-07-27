@@ -50,10 +50,10 @@ public class OsirisApplication extends Application implements IApplicationManage
     @Override
     public void onCreate() {
 
-//        String appHost = getResources().getString(R.string.osiris_app_host);
-//        String appId = getResources().getString(R.string.osiris_app_id);
+        String appHost = getResources().getString(R.string.osiris_app_host);
+        String appId = getResources().getString(R.string.default_app_id);
 
-//        createApplicationManager(appId, appHost);
+        createApplicationManager(appId, appHost);
 
         internalStatePersistor = new InternalStatePersistor(getBaseContext(), this);
     }
@@ -61,10 +61,10 @@ public class OsirisApplication extends Application implements IApplicationManage
     /**
      * Separating the indoor layout load process from application start
      */
-    public void indoorLayoutManager(String appId){
+    /*public void indoorLayoutManager(String appId){
         String appHost = getResources().getString(R.string.osiris_app_host);
         createApplicationManager(appId, appHost);
-    }
+    }*/
 
     @Override
     public ApplicationManager getApplicationManager() {

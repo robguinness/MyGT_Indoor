@@ -46,7 +46,7 @@ public class LoadIndoorMap {
 
 
 
-    public static final void loadMap(IIndoorMapLoader clientObserver) {
+    public static final void loadMap(IIndoorMapLoader clientObserver, String appId) {
         //register the client to send update
         observer = clientObserver;
         //store the activity context
@@ -55,6 +55,7 @@ public class LoadIndoorMap {
 
         applicationManagerProvider = (IApplicationManagerProvider) activity.getApplication();
         applicationManager = applicationManagerProvider.getApplicationManager();
+        applicationManager.setAppId(appId);
         internalStateManager = (IInternalStateManager) activity.getApplication();
 
 
@@ -135,7 +136,7 @@ public class LoadIndoorMap {
 
 
     /**
-     * Save map state to persitant memory.
+     * Save map state to persistent memory.
      */
     public static final void persistInternalState()
     {

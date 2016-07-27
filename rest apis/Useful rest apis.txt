@@ -1,0 +1,11 @@
+Metadata check:
+================
+Using this API we can check the checksum value at the begining of app. If the checksum is changed then fetch new map information from server.
+
+GET http://139.162.157.15:8020/osiris/geolocation/territory/map/metadata/
+
+Headers:
+api_key: building_1
+Content-Type: application/json
+
+4AD829DEBACAC53D44E204D955E169D37AE964FA934999D4B002E795AD3E7BCFAA3D1A7E49D526DAE3C3420AA753B338C86BA4471709FF79484928B4A71983FA

@@ -44,6 +44,13 @@
         android:layout_toRightOf="@id/load_indoor_btn"
         android:text="Indoor Map 2"/>
 
+    <Button
+        android:id="@+id/clear_indoor_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/load_indoor_btn_2"
+        android:text="Clear"/>
+
     <TextView
         android:id="@+id/tvCurrentStatusValue"
         android:layout_alignParentRight="true"

@@ -40,6 +40,14 @@ public class Repository {
         this.backendCaller = backendCaller;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
     public ICancellableTask request(RequestConfiguration configuration, ICallback<String> callback) {
 
         addHeaders(configuration);
@@ -54,7 +62,7 @@ public class Repository {
     private void addHeaders(RequestConfiguration configuration) {
 
         if (!configuration.containsHeaderKey("api_key")) {
-            configuration.addHeader("api_key", appId);
+            configuration.addHeader("api_key", getAppId());
         }
 
         if (!configuration.containsHeaderKey("Cache-Control")) {

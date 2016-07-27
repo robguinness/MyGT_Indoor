@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
+import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
+import com.fhc25.percepcion.osiris.mapviewer.manager.IApplicationManagerProvider;
 import com.fhc25.percepcion.osiris.mapviewer.ui.application.OsirisApplication;
 import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsirisOverlayManager;
@@ -40,8 +42,13 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     private static final String TAG = LandingActivity.class.toString();
 
     /**
+     * Application manager
+     */
+    ApplicationManager applicationManager;
+
+    /**
      * --------------------------------------
-     * For Oseries indoor mapping
+     * For Osiris indoor mapping
      * --------------------------------------
      */
     private MapsforgeMapView mapsforgeMapView;
@@ -77,6 +84,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
     private Button btnLoadIndoor;
     private Button btnLoadIndoor2;
+    private Button btnClearIndoor;
 
 
     @Override
@@ -110,6 +118,9 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
      */
     private void initViews() {
 
+        IApplicationManagerProvider applicationManagerProvider = (IApplicationManagerProvider) getApplication();
+        applicationManager = applicationManagerProvider.getApplicationManager();
+
         // setting the map view
         mapsforgeMapView = (MapsforgeMapView) findViewById(R.id.map_view);
         //setting the floor selector view
@@ -133,13 +144,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         btnLoadIndoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+//                mapsforgeOsirisOverlayManager.getDisplayer().clear();
                 String appId = getResources().getString(R.string.osiris_app_id);
 
-                OsirisApplication app = (OsirisApplication) getApplicationContext();
-                app.indoorLayoutManager(appId); //initialize with given map id
-
-                LoadIndoorMap.loadMap(LandingActivity.this); // loading corresponding indoor layout
+                LoadIndoorMap.loadMap(LandingActivity.this, appId); // loading corresponding indoor layout
             }
         });
 
@@ -147,13 +155,19 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         btnLoadIndoor2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+//                mapsforgeOsirisOverlayManager.getDisplayer().clear();
                 String appId = getResources().getString(R.string.osiris_building_1);
 
-                OsirisApplication app = (OsirisApplication) getApplicationContext();
-                app.indoorLayoutManager(appId); //initialize with given map id
+                LoadIndoorMap.loadMap(LandingActivity.this, appId); // loading corresponding indoor layout
+            }
+        });
 
-                LoadIndoorMap.loadMap(LandingActivity.this); // loading corresponding indoor layout
+        btnClearIndoor = (Button) findViewById(R.id.clear_indoor_map);
+        btnClearIndoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+                mapsforgeOsirisOverlayManager.getDisplayer().update();
             }
         });
 

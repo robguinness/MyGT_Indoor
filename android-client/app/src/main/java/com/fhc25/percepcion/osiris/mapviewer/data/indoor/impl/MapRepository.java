@@ -82,4 +82,9 @@ public class MapRepository extends Repository implements IMapRepository {
             }
         });
     }
+
+    @Override
+    public void setAppId(String appId) {
+        super.setAppId(appId);
+    }
 }

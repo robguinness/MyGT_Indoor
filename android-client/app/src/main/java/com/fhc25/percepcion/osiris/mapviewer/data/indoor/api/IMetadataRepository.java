@@ -24,5 +24,5 @@ import com.fhc25.percepcion.osiris.mapviewer.model.location.MetaData;
 public interface IMetadataRepository {
 
     ICancellableTask getMetadata(final ICallback<MetaData> callback);
-
+    void setAppId(String appId);
 }

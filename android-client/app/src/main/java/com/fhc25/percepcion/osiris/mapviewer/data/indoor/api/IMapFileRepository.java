@@ -23,5 +23,5 @@ import com.fhc25.percepcion.osiris.mapviewer.model.location.MapsforgeMap;
 public interface IMapFileRepository {
 
     ICancellableTask getMapFile(final ICallback<MapsforgeMap> callback);
-
+    void setAppId(String appId);
 }

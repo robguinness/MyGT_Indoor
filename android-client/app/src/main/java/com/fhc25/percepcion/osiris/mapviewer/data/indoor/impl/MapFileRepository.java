@@ -24,6 +24,8 @@ import com.fhc25.percepcion.osiris.mapviewer.common.errors.Failure;
 import com.fhc25.percepcion.osiris.mapviewer.data.IOsirisEndpoint;
 import com.fhc25.percepcion.osiris.mapviewer.data.Repository;
 import com.fhc25.percepcion.osiris.mapviewer.data.indoor.api.IMapFileRepository;
+import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
+import com.fhc25.percepcion.osiris.mapviewer.manager.IApplicationManagerProvider;
 import com.fhc25.percepcion.osiris.mapviewer.model.location.MapsforgeMap;
 
 import java.io.InputStream;
@@ -56,5 +58,10 @@ public class MapFileRepository extends Repository implements IMapFileRepository 
             }
         });
 
+    }
+
+    @Override
+    public void setAppId(String appId) {
+        super.setAppId(appId);
     }
 }

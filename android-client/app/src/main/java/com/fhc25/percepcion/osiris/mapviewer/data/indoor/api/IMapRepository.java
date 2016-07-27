@@ -29,4 +29,6 @@ public interface IMapRepository {
 
     ICancellableTask getMap(MongoGeospatialQuery query, String layer, IMongoGeospatialQueryParser mongoGeospatialQueryParser,
                             final ICallback<Collection<Feature>> callback);
+
+    void setAppId(String appId);
 }

@@ -43,7 +43,8 @@ public class ApplicationManager {
 
     private final IOsirisEndpoint endpoint;
     private final IBackendCaller backendCaller;
-    private final String appId;
+
+    private String appId;
 
     private IMetadataRepository metadataRepository;
     private IMapFileRepository mapFileRepository;
@@ -100,4 +101,14 @@ public class ApplicationManager {
         return bundleInternalStateManager;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+        metadataRepository.setAppId(appId);
+        mapRepository.setAppId(appId);
+        mapFileRepository.setAppId(appId);
+    }
 }
