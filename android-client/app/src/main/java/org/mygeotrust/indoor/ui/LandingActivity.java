@@ -1,6 +1,5 @@
 package org.mygeotrust.indoor.ui;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,20 +10,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
 import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
 import com.fhc25.percepcion.osiris.mapviewer.manager.IApplicationManagerProvider;
-import com.fhc25.percepcion.osiris.mapviewer.ui.application.OsirisApplication;
 import com.fhc25.percepcion.osiris.mapviewer.ui.controllers.FloorSelectorViewController;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsirisOverlayManager;
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.themes.VisualTheme;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.level.FloorSelectorView;
-import com.yarolegovich.lovelydialog.LovelyInfoDialog;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
@@ -147,7 +142,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         btnLoadIndoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
                 String appId = getResources().getString(R.string.osiris_app_id);
 
                 LoadIndoorMap.loadMap(LandingActivity.this, appId); // loading corresponding indoor layout
@@ -158,7 +153,7 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         btnLoadIndoor2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                mapsforgeOsirisOverlayManager.getDisplayer().clear();
+                mapsforgeOsirisOverlayManager.getDisplayer().clear();
                 String appId = getResources().getString(R.string.osiris_building_1);
 
                 LoadIndoorMap.loadMap(LandingActivity.this, appId); // loading corresponding indoor layout
