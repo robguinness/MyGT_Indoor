@@ -27,17 +27,20 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import org.mygeotrust.indoor.utils.dialogue.CustomDialog;
+import org.mygeotrust.indoor.utils.dialogue.Dialogs;
+import org.mygeotrust.indoor.utils.dialogue.IDialogs;
 import org.mygeotrust.service.initializer.MyGtServiceBinder;
 import org.mygeotrust.service.manager.Listeners.IMyGtGPSOptionListener;
 import org.mygeotrust.service.manager.MyGtLocationManager;
 import org.mygeotrust.service.manager.MyGtOptionListener;
 import org.mygeotrust.utils.OptionKeys;
 
-public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListener, IDialogs, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = CanGetLocationNew.class.toString();
 
     private static ICanGetLocation observer;
+
 
     private enum GpsAllowedStatus {
         ALLOWED,
@@ -94,31 +97,30 @@ public class CanGetLocationNew extends Activity implements IMyGtGPSOptionListene
         //if location service (GPS) is not allowed in the profile
         else if (!MyGtLocationManager.isLocationAllowed()) {
 
-            //show dialogue and launch the service to turn it on with user consent.
-            CustomDialog.showDialog(CanGetLocationNew.this, "Launch MyGeoTrust", "GPS is not allowed in Current Profile. Press OK to launch the Stack for changing the settings..", CustomDialog.YES_NO, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            Dialogs.getInstance().showStandardDialog(this, "Launch MyGeoTrust", "GPS is not allowed in Current Profile. Press OK to launch the Stack for changing the settings.", "Launch", "Not Now");
 
-                    if (which == DialogInterface.BUTTON_POSITIVE) {
-                        //launch mygeotrust service
-                        if (!MyGtServiceBinder.launchMyGTApp(getApplicationContext(), Package.getPackage(getPackageName()), CanGetLocation.class)) {
-                            Toast.makeText(CanGetLocationNew.this, "MyGeoTrust is not installed in your device!", Toast.LENGTH_SHORT).show();
-                            //finish(); //close this activity.
-                        }
-
-                    }
-
-                    //if user denies to allow GPS in the profile then return and notify the client immediately
-                    else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        prepareReturnData(GpsAllowedStatus.NOTALLOWED_CURRENT_PROFILE);
-                        notifyObserver();
-                        finish();
-                    }
-                }
-            });
         }
     }
 
+    @Override
+    public void onDialogOptionSelected(SelectionStatus status) {
+        Dialogs.getInstance().unregisterObserver();
+
+        if(status == SelectionStatus.ok_pressed)
+        {
+            if (!MyGtServiceBinder.launchMyGTApp(getApplicationContext(), Package.getPackage(getPackageName()), CanGetLocation.class)) {
+                Toast.makeText(CanGetLocationNew.this, "MyGeoTrust is not installed in your device!", Toast.LENGTH_SHORT).show();
+                //finish(); //close this activity.
+            }
+        }
+        else if(status == SelectionStatus.cancel_pressed)
+        {
+            prepareReturnData(GpsAllowedStatus.NOTALLOWED_CURRENT_PROFILE);
+            notifyObserver();
+            finish();
+        }
+
+    }
 
     /**
      * Get called when GPS option changes in the stack

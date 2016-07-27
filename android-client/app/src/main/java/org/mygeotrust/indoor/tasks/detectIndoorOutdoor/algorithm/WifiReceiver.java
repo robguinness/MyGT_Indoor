@@ -1,4 +1,4 @@
-package org.mygeotrust.indoor.tasks.detectProximity;
+package org.mygeotrust.indoor.tasks.detectIndoorOutdoor.algorithm;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,9 +15,9 @@ import java.util.List;
 public class WifiReceiver extends BroadcastReceiver implements Comparator<ScanResult> {
 
 	private static final boolean DEBUG_ON = false;
-    private static final String WIFI_INFO_UPDATE = "com.contextawareness.determineindooroutdoor.WIFI_INFO_UPDATE";
-    private static final String TOTAL_POWER_VALUE = "com.contextawareness.determineindooroutdoor.TOTAL_POWER_VALUE";
-    private static final String NUMBER_ACCESS_POINTS = "com.contextawareness.determineindooroutdoor.NUMBER_ACCESS_POINTS";
+    public static final String WIFI_INFO_UPDATE = "com.contextawareness.determineindooroutdoor.WIFI_INFO_UPDATE";
+    public static final String TOTAL_POWER_VALUE = "com.contextawareness.determineindooroutdoor.TOTAL_POWER_VALUE";
+    public static final String NUMBER_ACCESS_POINTS = "com.contextawareness.determineindooroutdoor.NUMBER_ACCESS_POINTS";
     
 		//Handler wifiProcessingHandler;
 		long scanTime;

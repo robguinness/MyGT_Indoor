@@ -1,18 +1,18 @@
 package org.mygeotrust.indoor.ui;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.fhc25.percepcion.osiris.mapviewer.R;
 import com.fhc25.percepcion.osiris.mapviewer.manager.ApplicationManager;
@@ -23,20 +23,25 @@ import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.mapsforge.MapsforgeOsir
 import com.fhc25.percepcion.osiris.mapviewer.ui.overlays.themes.VisualTheme;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.level.FloorSelectorView;
+import com.yarolegovich.lovelydialog.LovelyInfoDialog;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mygeotrust.indoor.tasks.bindService.BindToMyGtService;
 import org.mygeotrust.indoor.tasks.bindService.IBindService;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.CanGetLocationNew;
 import org.mygeotrust.indoor.tasks.checkLocationSettings.ICanGetLocation;
-import org.mygeotrust.indoor.tasks.detectProximity.DetermineIndoorOutdoorService;
+import org.mygeotrust.indoor.tasks.detectIndoorOutdoor.IindoorOutdoorDetectorController;
+import org.mygeotrust.indoor.tasks.detectIndoorOutdoor.IndoorOutdoorDetectorController;
 import org.mygeotrust.indoor.tasks.loadIndoor.IIndoorMapLoader;
 import org.mygeotrust.indoor.tasks.loadIndoor.LoadIndoorMap;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
 import org.mygeotrust.indoor.tasks.loadMap.LoadMap;
+import org.mygeotrust.indoor.utils.dialogue.Dialogs;
+import org.mygeotrust.indoor.utils.dialogue.IDialogs;
 
 
-public class LandingActivity extends AppCompatActivity implements ILandingActivity, IBindService, IMapLoader, ICanGetLocation, IIndoorMapLoader {
+public class LandingActivity extends AppCompatActivity implements ILandingActivity, IBindService, IMapLoader, ICanGetLocation, IIndoorMapLoader, IDialogs, IindoorOutdoorDetectorController {
 
 
     private static final String TAG = LandingActivity.class.toString();
@@ -56,32 +61,16 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     private MapsforgeOsirisOverlayManager mapsforgeOsirisOverlayManager;
     private FloorSelectorViewController floorSelectorViewController;
 
+    private ToggleButton btnInOutSet;
+    private Boolean isDetectorStarted = false;
 
-    /**
-     * -------------------------------
-     * For proximity detection
-     * -------------------------------
-     */
-    private static final boolean DEBUG_ON = false;
-    private static final String CURRENT_STATUS_VALUE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_VALUE";
-    private static final String CURRENT_STATUS_PROB = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_PROB";
-    private static final String WIFI_INFO_UPDATE = "com.contextawareness.determineindooroutdoor.WIFI_INFO_UPDATE";
-    private static final String WIFI_POWER_LOW_EVENT = "com.contextawareness.determineindooroutdoor.WIFI_POWER_LOW_EVENT";
-    private static final String TOTAL_POWER_VALUE = "com.contextawareness.determineindooroutdoor.TOTAL_POWER_VALUE";
-    private static final String NUMBER_ACCESS_POINTS = "com.contextawareness.determineindooroutdoor.NUMBER_ACCESS_POINTS";
-    private static final String CURRENT_STATUS_UPDATE = "com.contextawareness.determineindooroutdoor.CURRENT_STATUS_UPDATE";
-    private static final String GPS_VALUE = "com.contextawareness.determineindooroutdoor.GPS_VALUE";
-    private static final String GPS_UPDATE = "com.contextawareness.determineindooroutdoor.GPS_UPDATE";
-    private BroadcastReceiver currentStatusReceiver;
-    private BroadcastReceiver wifiInfoReceiver;
-
-    //Temporary views to test indoor / outdoor proximity detection
+    //TODO:Temporary views to test indoor / outdoor proximity detection
     private TextView tvCurrentStatus;
     private TextView tvCurrentStatusProb;
     private TextView tvTotalPowerValue;
     private TextView tvNumberAPsValue;
 
-
+    //TODO: buttons for testing purpose only
     private Button btnLoadIndoor;
     private Button btnLoadIndoor2;
     private Button btnClearIndoor;
@@ -91,11 +80,10 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidGraphicFactory.createInstance(this.getApplication());
-
         setContentView(R.layout.activity_landing);
-
         initViews();
 
+        new BindToMyGtService(getApplicationContext(), this);
 
        /*
         * This code is related to lifecycle event of the activity while onCreate is called, e.g., screen orientation change. to load the last known
@@ -104,10 +92,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
        if (savedInstanceState != null) {
             LoadIndoorMap.loadFromSaveState(savedInstanceState);
         }*/
-
-
-        new BindToMyGtService(getApplicationContext(), this);
-
     }
 
 
@@ -133,6 +117,25 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
         floorSelectorView.addObserver(floorSelectorViewController);
         mapsforgeMapView.addObserver(floorSelectorViewController);
+
+        btnInOutSet = (ToggleButton) findViewById(R.id.tgBtnInOutDetect);
+        btnInOutSet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    //if indoor/outdoor detector is not started then initiate the procedure.
+                    if (!isDetectorStarted) {
+                        isDetectorStarted = true;
+                        checkAndSetLocationSettings();
+                    }
+                }
+                //otherwise, turn off the detector.
+                else {
+                    isDetectorStarted = false;
+                    IndoorOutdoorDetectorController.getInstance().stopIndoorOutdoorDetector();
+                }
+            }
+        });
+
 
         //Temporary views to test indoor / outdoor proximity detection
         tvCurrentStatus = (TextView) findViewById(R.id.tvCurrentStatusValue);
@@ -180,11 +183,12 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
             Log.d(TAG, "Bind Status: successful!");
             //now load the map
             //this loads open street map and marks the buildings that have indoor mapping available.
-            //this also saves the indoor data (partial) localy for proximity detection.
+            //this also saves the indoor data (partial) locally for indoor/outdoor detection.
             new LoadMap(this, mapsforgeMapView);
 
-        } else
-            Log.e(TAG, "Bind Failed! Please check that MyGeoTrust is properly installed in your device and restart again. Thanks");
+        }
+        else
+            Dialogs.getInstance().showInfoDialog(this, "Bind to MyGtService Failed!", "Please check that MyGeoTrust is properly installed in your device and restart the app again.", R.drawable.ic_warning, R.color.colorRed);
     }
 
 
@@ -193,79 +197,86 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         if (status) {
             Log.e(TAG, "Map load status: " + status + ": " + message);
 
-            // Check location update settings
-            CanGetLocationNew.addObserver(this);
-            Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
-            startActivity(intent);
-        } else
-            Log.e(TAG, "Map load Failed! Error Message: " + message);
+            //ask user to start indoor/outdoor detector.
+            Dialogs.getInstance().showStandardDialog(this, "Start Indoor/Outdoor Detector",
+                    "  Would you like to start auto indoor/outdoor detector? " +
+                            "\n\n  Pressing Start will ask you to allow GPS and WiFI in Device and in MyGT Profile.", "Start", "Not Now");
+
+        }
+        //show error dialog
+        else
+            Dialogs.getInstance().showInfoDialog(this, "Map load Failed!", "Error: " + message, R.drawable.ic_warning, R.color.colorRed);
     }
 
+    @Override
+    public void onDialogOptionSelected(SelectionStatus status) {
+        Dialogs.getInstance().unregisterObserver();
+
+        //if user agrees to start the indoor/outdoor detector
+        if (status == SelectionStatus.ok_pressed) {
+            checkAndSetLocationSettings();
+        }
+    }
+
+    private void checkAndSetLocationSettings() {
+        CanGetLocationNew.addObserver(this);
+        Intent intent = new Intent(LandingActivity.this, CanGetLocationNew.class);
+        startActivity(intent);
+    }
 
     public void onGetLocationStatus(Boolean status, String message) {
 
         //Start proximity detector
-        //TODO: proximity detector should be started when GPS is on
-        //TODO: and user should be prompted to turn it on !!
         //TODO: There should an explicit way (e.g., a button) to trun proximity detector on if user does not trun on GPS at this stage.
-        startProximityDetector();
 
+        //TODO: Do we need to check WiFi status as well?!
+        //if GPS is allowed in both Profile and in Device then start
+        if (status) {
+            IndoorOutdoorDetectorController.getInstance().startIndoorOutdoorDetector(this, this);
+            toggleIndoorOutdoorButtonStatus(true);
+        } else {
+            Dialogs.getInstance().showInfoDialog(this, " Cannot start indoor/outdoor Detector.", " GPS use Status: " + status + "\n Error: " + message, R.drawable.ic_warning, R.color.colorRed);
+            toggleIndoorOutdoorButtonStatus(false);
+        }
     }
-
 
 
     /**
-     * This method starts the proximity detection service(s) upon successful completion
-     * of the app lifecycle events.
+     * this method is invoked while there is a change in any of the following four parameter in determining
+     * user location with respect to indoor / outdoor location
+     *
+     * @param locationStatus
+     * @param probability
+     * @param power
+     * @param noOfAccessPoints
      */
-    private void startProximityDetector() {
-        Log.e(TAG, "Proximity detector started!!");
-
-        currentStatusReceiver = new BroadcastReceiver() {
-
+    @Override
+    public void onIndoorOutdoorStatusChanged(final IndoorOutdoorDetectorController.LocationStatus locationStatus, final String probability, final String power, final String noOfAccessPoints) {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
-            {
-                tvCurrentStatus.setText(intent.getStringExtra(CURRENT_STATUS_VALUE));
-                tvCurrentStatusProb.setText(String.valueOf(intent.getIntExtra(CURRENT_STATUS_PROB, 0)));
+            public void run() {
+                if (locationStatus == IndoorOutdoorDetectorController.LocationStatus.outdoor)
+                    tvCurrentStatus.setText("Outdoor");
+                else if (locationStatus == IndoorOutdoorDetectorController.LocationStatus.indoor)
+                    tvCurrentStatus.setText("Indoor");
+
+                tvCurrentStatusProb.setText(probability);
+                tvTotalPowerValue.setText(power);
+                tvNumberAPsValue.setText(noOfAccessPoints);
             }
-        };
-
-        wifiInfoReceiver = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent)//this method receives broadcast messages. Be sure to modify AndroidManifest.xml file in order to enable message receiving
-            {
-                int totalPower = intent.getIntExtra(TOTAL_POWER_VALUE, 0);
-                if (totalPower != 0) {
-                    tvTotalPowerValue.setText(String.valueOf(totalPower));
-                } else {
-                    tvTotalPowerValue.setText("low");
-                }
-
-                tvNumberAPsValue.setText("(" + String.valueOf(intent.getIntExtra(NUMBER_ACCESS_POINTS, 0)) + ")");
-
-            }
-        };
-
-
-        IntentFilter currentStatusFilter = new IntentFilter(CURRENT_STATUS_UPDATE);
-        registerReceiver(currentStatusReceiver, currentStatusFilter);
-
-        IntentFilter wifiInfoFilter = new IntentFilter(WIFI_INFO_UPDATE);
-        registerReceiver(wifiInfoReceiver, wifiInfoFilter);
-
-        startService(new Intent(this, DetermineIndoorOutdoorService.class));
+        });
     }
 
+
+    //TODO: the following callback method in test mode now!
 
     /**
      * This call back method fires when a request for a indoor map loading returns.
-     *
+     * <p/>
      * NOTE: Indoor map is loaded as per request (e.g., while user taps on a building which is indoor mapped) or
      * the proximity detector detects an indoor location that is already mapped and user wants to view the indoor map.
      *
-     * @param status: success / failure
+     * @param status:  success / failure
      * @param message: message associated with the cause of failure or success.
      */
     @Override
@@ -294,6 +305,16 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         return floorSelectorView;
     }
 
+
+    /**
+     * ---------------
+     * Helper methods
+     * ---------------
+     */
+    private void toggleIndoorOutdoorButtonStatus(Boolean status) {
+        btnInOutSet.setChecked(status);
+        isDetectorStarted = status;
+    }
 
     /**
      * ----------------------------------------------
@@ -326,6 +347,49 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        //remove the map view and layer manager
+        mapsforgeMapView.destroy();
+        mapsforgeOsirisOverlayManager.destroy();
+
+        //stop proximity detection services
+        IndoorOutdoorDetectorController.getInstance().stopIndoorOutdoorDetector();
+    }
+
+
+
+
+ /*   private void showStandardDialog(String title, String message, String txtPositiveBtn, String txtNegBtn) {
+        new LovelyStandardDialog(this)
+                .setTopColorRes(R.color.wallet_holo_blue_light)
+                .setButtonsColorRes(R.color.wallet_holo_blue_light)
+                .setIcon(R.drawable.ic_info)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(txtPositiveBtn, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(LandingActivity.this, "Starting Indoor/Outdoor detector...", Toast.LENGTH_SHORT).show();
+                        setLocationSettings();
+                    }
+                })
+                .setNegativeButton(txtNegBtn, null)
+                .show();
+    }*/
+
+    /*private void showInfoDialog(String title, String msg, int icon, int color) {
+        new LovelyInfoDialog(this)
+                .setTopColorRes(color)
+                .setIcon(icon)
+                //This will add Don't show again checkbox to the dialog. You can pass any ID as argument
+                //.setNotShowAgainOptionEnabled(0)
+                .setTitle(title)
+                .setMessage(msg)
+                .show();
+    }*/
 
     /*
      * This block is to save the state of the application when it get destroyed. so that it can be loaded while reloading, e.g., orientation change.
@@ -359,20 +423,6 @@ public class LandingActivity extends AppCompatActivity implements ILandingActivi
 
         mapsforgeMapView.onPause();
     }*/
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        //remove the map view and layer manager
-        mapsforgeMapView.destroy();
-        mapsforgeOsirisOverlayManager.destroy();
-
-        //stop proximity detection services
-        unregisterReceiver(currentStatusReceiver);
-        unregisterReceiver(wifiInfoReceiver);
-        stopService(new Intent(this, DetermineIndoorOutdoorService.class));
-    }
 
 
 }
