@@ -1,30 +1,16 @@
 package org.mygeotrust.indoor.tasks.loadMap.loadAndMarkIndoor;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fhc25.percepcion.osiris.mapviewer.R;
-import com.fhc25.percepcion.osiris.mapviewer.dto.location.FeatureDTO;
 import com.fhc25.percepcion.osiris.mapviewer.ui.views.indoor.MapsforgeMapView;
 
-import org.mapsforge.core.graphics.Bitmap;
-import org.mapsforge.core.model.LatLong;
-import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
-import org.mapsforge.map.layer.overlay.Marker;
 import org.mygeotrust.indoor.network.async.AsyncRequestTask;
 import org.mygeotrust.indoor.network.async.IAsyncResponse;
 import org.mygeotrust.indoor.network.config.serverConfig.ServerEndPoints;
 import org.mygeotrust.indoor.network.remote.Request;
 import org.mygeotrust.indoor.network.remote.RequestTypes;
 import org.mygeotrust.indoor.tasks.loadMap.IMapLoader;
-import org.mygeotrust.indoor.ui.LandingActivity;
-import org.mygeotrust.indoor.utils.dataStore.IndoorLocationData;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
