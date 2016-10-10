@@ -34,22 +34,23 @@
         android:id="@+id/load_indoor_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:text="Indoor Map 1"/>
+        android:layout_toLeftOf="@+id/load_indoor_btn_2"
+        android:text="Map 1"/>
 
     <Button
         android:id="@+id/load_indoor_btn_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/load_indoor_btn"
-        android:text="Indoor Map 2"/>
+        android:layout_toLeftOf="@+id/tvCurrentStatusValue"
+        android:text="Map 2"/>
 
     <Button
         android:id="@+id/clear_indoor_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/load_indoor_btn_2"
-        android:text="Clear"/>
+        android:text="Clear"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tvCurrentStatusValue"

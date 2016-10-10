@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="org.mygeotrust.indoor.demo.MainActivity">
+
+    <fi.fgi.navi.imgc.maplib.views.mapsforge.MapsforgeMapView
+        android:id="@+id/map_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <fi.fgi.navi.imgc.maplib.views.indoor.level.FloorSelectorView
+        android:id="@+id/floor_radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/floor_normal_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/btn_load_indoor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="Indoor Map"/>
+</RelativeLayout>
